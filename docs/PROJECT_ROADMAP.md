@@ -1,6 +1,6 @@
 # Sentinel — Persistent Project Roadmap
 
-Last Updated: 2026-10-22
+Last Updated: 2026-10-23
 
 ## Objective and planning horizon
 
@@ -13,13 +13,13 @@ The DOCUMENTED, project-owner-approved plan targets 12 weeks at approximately 8�
 | Item | Current value | Evidence |
 | --- | --- | --- |
 | Active phase | Phase 0 — Engineering Foundations | DOCUMENTED: current project state and owner instruction |
-| Active ticket | SENT-001 — Define Sentinel Requirements | DOCUMENTED: explicit owner instruction |
-| Ticket status | In Progress; requirements drafting has not begun | DOCUMENTED: owner-authorized transition; VERIFIED: synchronization changed progress records only |
-| Latest approved milestones | SENT-000.7 and SENT-000.8 — Completed and approved | DOCUMENTED: explicit project-owner closure approval |
+| Active ticket | SENT-002 — High-Level System Architecture | DOCUMENTED: explicit owner instruction |
+| Ticket status | In Progress; architecture drafting has not begun | DOCUMENTED: owner-authorized transition; VERIFIED: synchronization changed documentation only |
+| Latest approved milestones | SENT-000.7, SENT-000.8, and SENT-001 — Completed and approved | DOCUMENTED: explicit project-owner closure approval |
 | Implementation | No application code or build configuration present at the SENT-000.8 inspection | VERIFIED: repository file inventory |
 | Foundation work | Context-management instructions, current-state documentation, and decision log exist and contain content | VERIFIED: inspected repository files |
 
-All topics and deliverables below are planned work. Their inclusion does not mean a feature is implemented, a concept is mastered, or a test has passed. Context-management artifacts support Phase 0 but do not satisfy its requirements, architecture-diagram, or system-boundary deliverables. No evidence for those deliverables was found in the inspected repository, so their initial status is Not Started.
+The topics and implementation deliverables below describe planned work. Their inclusion does not mean a feature is implemented, a concept is mastered, or a test has passed. The requirements-document milestone is Completed: [REQUIREMENTS.md](REQUIREMENTS.md) records the owner-approved requirements direction with the normal-operation and Redis-unavailable clarification. No failure policy has been selected. The architecture-diagram and system-boundary deliverables remain Not Started; context-management artifacts alone do not satisfy them.
 
 Evidence labels follow [AGENTS.md](../AGENTS.md): VERIFIED means confirmed by inspection or executed commands; DOCUMENTED means recorded in project documentation; PROPOSED means suggested but not approved; UNKNOWN means evidence is insufficient. A missing execution result is not a passing test.
 
@@ -52,7 +52,7 @@ Topics:
 
 | Planned deliverable | Status | Completion evidence |
 | --- | --- | --- |
-| Requirements document | Not Started | Not yet recorded |
+| Requirements document | Completed | [REQUIREMENTS.md](REQUIREMENTS.md), all 16 requirements and operating-mode clarification; explicit owner approval of SENT-001 closure, 2026-10-23 |
 | Initial architecture diagram | Not Started | Not yet recorded |
 | Approved system boundaries | Not Started | Not yet recorded |
 
@@ -216,4 +216,4 @@ Other DOCUMENTED stack choices in [CURRENT_STATE.md](CURRENT_STATE.md), includin
 
 ## Next micro-task
 
-Define the gateway’s functional and nonfunctional requirements under SENT-001, beginning with the project owner’s proposed expected behaviors and quality constraints. The requirements-document deliverable remains Not Started until that work begins. Phase 0 remains In Progress; subsequent ticket or phase transitions require project-owner approval.
+Begin SENT-002 — High-Level System Architecture with the project owner’s proposed main components, trust boundaries, and request flow based on the approved requirements direction. Phase 0 remains In Progress; architectural decisions and subsequent ticket or phase transitions require project-owner approval.

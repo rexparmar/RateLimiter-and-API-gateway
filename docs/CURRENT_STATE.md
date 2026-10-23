@@ -1,6 +1,6 @@
 Sentinel — Current Project State
 
-Last Updated: 2026-10-22
+Last Updated: 2026-10-23
 Repository: RateLimiter
 Project: Sentinel — Distributed Rate Limiter & API Gateway
 
@@ -12,16 +12,16 @@ Project: Sentinel — Distributed Rate Limiter & API Gateway
 * Phase Status: In Progress
 * Week: 1
 * Milestone: Project Initialization
-* Active Ticket: SENT-001 — Define Sentinel Requirements
+* Active Ticket: SENT-002 — High-Level System Architecture
 * Status: In Progress
 
 2. Current Objective
 
-Define the gateway’s functional and nonfunctional requirements before beginning application development.
+Develop Sentinel’s high-level system architecture from the approved requirements direction before beginning application development.
 
-The context-management workflow and persistent roadmap support this work. The project owner proposes and understands the requirements, with Codex acting as a mentor and reviewer.
+The context-management workflow and persistent roadmap support this work. The project owner proposes the architecture and explains its reasoning, with Codex acting as a mentor and reviewer.
 
-Requirements drafting has not begun in this synchronization. The roadmap’s requirements-document deliverable remains Not Started.
+The project owner approved the requirements direction and SENT-001 closure with the operating-mode clarification (DOCUMENTED). Strict shared enforcement applies during normal operation when Redis is available; when Redis is unavailable, the configured failure policy applies. Fail-open and local fallback may weaken global guarantees. No failure policy was selected or implemented. The roadmap’s requirements-document deliverable is Completed; architecture work has not begun in this synchronization.
 
 3. Completed Work
 
@@ -36,7 +36,8 @@ Requirements drafting has not begun in this synchronization. The roadmap’s req
 * SENT-000.5 — Completed and approved by the project owner (DOCUMENTED: explicit owner instruction).
 * SENT-000.6 — Documentation review and Git workflow completed (DOCUMENTED: project-owner instruction; VERIFIED: workflow documentation committed in 7637fa1). The review itself and a remote push have not been independently verified.
 * SENT-000.7 — Completed and approved by the project owner (DOCUMENTED: explicit closure approval). Automatic context checkpointing is configured in AGENTS.md (VERIFIED).
-* SENT-000.8 — Completed and approved by the project owner (DOCUMENTED: explicit closure approval). docs/PROJECT_ROADMAP.md contains all seven planned phases, topics, and deliverables (VERIFIED). Phase 0 is In Progress; later phases and all listed deliverables are Not Started.
+* SENT-000.8 — Completed and approved by the project owner (DOCUMENTED: explicit closure approval). docs/PROJECT_ROADMAP.md contains all seven planned phases, topics, and deliverables (VERIFIED). At roadmap creation, Phase 0 was In Progress; later phases and all listed deliverables were Not Started.
+* SENT-001 — Completed and approved by the project owner, 2026-10-23 (DOCUMENTED: explicit owner instruction). docs/REQUIREMENTS.md records FR-001 through FR-008, NFR-001 through NFR-008, and the clarified normal-operation and Redis-unavailable guarantees (VERIFIED). Assumptions, proposed initial exclusions, and open architectural choices remain subject to their stated review; no failure policy or implementation was selected.
 
 4. Approved Technology Stack
 
@@ -74,6 +75,12 @@ Specific dependency versions have not been selected or verified.
 * No application tests or benchmarks executed during SENT-000.8; no learning proficiency assessment performed.
 * VERIFIED during final context synchronization: reviewed all four context files; synchronized ticket closures and the SENT-001 transition in this file and the roadmap. git diff --check passed. AGENTS.md, docs/DECISIONS.md, and the Git index remained unchanged during synchronization.
 * No application tests, benchmarks, or proficiency assessments executed during final context synchronization. Requirements drafting remains the next action.
+* VERIFIED at the 2026-10-23 requirements-draft inspection: the working tree was clean; HEAD was afa556a (docs: establish automated project context management). Live remote state and push execution were not independently verified.
+* docs/REQUIREMENTS.md exists and records the owner-approved requirements direction with the operating-mode clarification (VERIFIED: file contents; DOCUMENTED: owner approval, 2026-10-23). No application code or build configuration was present in the inspected repository.
+* VERIFIED during requirements drafting: reviewed all 16 requirement entries and proposal/decision boundaries; git diff --check passed. AGENTS.md, docs/DECISIONS.md, and the Git index were unchanged. Updated only requirements documentation and progress records.
+* No application tests, benchmarks, or proficiency assessments executed during requirements drafting.
+* VERIFIED at SENT-001 closure, 2026-10-23: reviewed requirements consistency across normal operation and Redis-unavailable behavior; all eight FR and eight NFR entries are present exactly once. git diff --check passed. AGENTS.md, docs/DECISIONS.md, and the Git index remained unchanged during clarification and closure synchronization.
+* No application tests, benchmarks, or proficiency assessments executed during SENT-001 closure. No failure policy was selected or implemented; no architecture drafting was performed.
 
 File contents and current Git status must be verified by Codex before reporting them as current facts.
 
@@ -93,11 +100,11 @@ None reported.
 
 8. Next Micro-Task
 
-SENT-001 — Define Sentinel Requirements: define the gateway’s functional and nonfunctional requirements, beginning with the project owner’s proposed expected behaviors and quality constraints.
+SENT-002 — High-Level System Architecture: begin with the project owner’s proposed main components, trust boundaries, and request flow, using docs/REQUIREMENTS.md as the requirements baseline.
 
 The roadmap records the owner-approved learning scope. It does not authorize application implementation or resolution of open architectural decisions.
 
-SENT-001 is active and In Progress; Phase 0 remains In Progress. Requirements work is the next action and was not performed during this synchronization. Do not advance to another ticket or phase without approval.
+SENT-002 is active and In Progress; Phase 0 remains In Progress. Architecture drafting is the next action and was not performed during this synchronization. Architectural decisions and further ticket or phase transitions require explicit project-owner approval.
 
 9. Learning Progress
 
