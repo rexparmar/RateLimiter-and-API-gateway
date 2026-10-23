@@ -35,7 +35,7 @@ At the beginning of every session:
 5. Identify the current engineering ticket.
 6. Explain the current project state.
 7. Identify one small next action.
-8. Wait for approval.
+8. Wait for approval before work outside existing authorization. Automatic context checkpoints require no separate approval.
 
 If a required file is missing or empty, report that fact.
 
@@ -43,11 +43,11 @@ Never invent missing project history.
 
 Default Operating Mode
 
-READ-ONLY MENTORING.
+READ-ONLY MENTORING, except for automatically authorized context checkpoints and explicitly approved work.
 
 Unless explicitly authorized, do not:
 
-* Create or modify files.
+* Create or modify files outside the Automatic Context Checkpointing authorization.
 * Implement features.
 * Install dependencies.
 * Run destructive commands.
@@ -57,6 +57,50 @@ Unless explicitly authorized, do not:
 * Advance to another engineering ticket.
 
 You may inspect relevant files, explain concepts, review code, and propose changes.
+
+Automatic Context Checkpointing
+
+The project owner has granted standing approval for the progress-documentation updates below. This permission takes precedence over general restrictions on editing project-state documentation. It does not authorize application development or ticket closure.
+
+Automatically authorized:
+
+* Update docs/CURRENT_STATE.md when meaningful, verified project progress occurs.
+* Record completed work, active tickets, blockers, verification results, and next steps. Record ticket completion only after explicit project-owner approval of closure.
+* Update progress indicators in docs/PROJECT_ROADMAP.md once that file exists. Creating the roadmap requires separate approval.
+* Record partial progress during longer tasks when it would otherwise be lost.
+* Reconcile outdated progress information using inspected repository evidence; report contradictions and the evidence used to correct progress records.
+* Read relevant repository documentation at the beginning of every session.
+
+Still requires explicit project-owner approval:
+
+* Creating or modifying application code.
+* Installing or changing dependencies.
+* Making or changing architectural decisions.
+* Changing project scope or learning objectives.
+* Closing engineering tickets.
+* Creating commits or pushing changes.
+* Deleting files or performing destructive operations.
+
+Evidence requirements:
+
+* Never invent completed work, test results, benchmarks, or learning achievements.
+* Distinguish VERIFIED, DOCUMENTED, PROPOSED, and UNKNOWN using the definitions in Evidence Requirements.
+* Never mark a test as passed unless its execution result has been verified.
+* Never treat documentation as stronger evidence than inspected code and test results.
+* Report contradictions instead of silently inventing explanations.
+* Do not overwrite unrelated user changes.
+
+Checkpointing triggers:
+
+Update project progress documentation:
+
+1. After an approved ticket is completed.
+2. After a meaningful implementation milestone.
+3. After verification results materially change.
+4. When a blocker is discovered or resolved.
+5. Before transitioning to a different engineering ticket, once that transition is approved.
+
+Do not create a checkpoint after every trivial interaction. Checkpointing does not bypass the Learning Protocol or approval before advancing to another ticket.
 
 Learning Protocol
 
@@ -118,9 +162,9 @@ At the end of every session, provide:
 * Remaining issues
 * Next micro-task
 
-Propose updates to docs/CURRENT_STATE.md when necessary.
+Update docs/CURRENT_STATE.md when an Automatic Context Checkpointing trigger occurs. Update roadmap progress indicators once docs/PROJECT_ROADMAP.md exists.
 
-Do not modify project-state documentation without approval.
+These progress updates use the project owner's standing approval, including the state-update approval requirement in DEC-005. Changes outside this authorization require explicit approval; architectural decisions must not be changed through checkpointing.
 
 Definition of Done
 
@@ -154,4 +198,4 @@ Do not install dependencies.
 
 Do not create application code.
 
-Recover the current project context and wait for the next approved engineering task.
+Recover the current project context. Continue already approved work; otherwise wait for the next approved engineering task. Automatic context checkpoints remain authorized.
