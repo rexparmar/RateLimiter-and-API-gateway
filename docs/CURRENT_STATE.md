@@ -1,6 +1,6 @@
 Sentinel — Current Project State
 
-Last Updated: 2026-10-23
+Last Updated: 2026-10-26
 Repository: RateLimiter
 Project: Sentinel — Distributed Rate Limiter & API Gateway
 
@@ -21,7 +21,7 @@ Develop Sentinel’s high-level system architecture from the approved requiremen
 
 The context-management workflow and persistent roadmap support this work. The project owner proposes the architecture and explains its reasoning, with Codex acting as a mentor and reviewer.
 
-The project owner approved the requirements direction and SENT-001 closure with the operating-mode clarification (DOCUMENTED). Strict shared enforcement applies during normal operation when Redis is available; when Redis is unavailable, the configured failure policy applies. Fail-open and local fallback may weaken global guarantees. No failure policy was selected or implemented. The roadmap’s requirements-document deliverable is Completed; architecture work has not begun in this synchronization.
+The project owner approved the requirements direction and SENT-001 closure with the operating-mode clarification (DOCUMENTED). Strict shared enforcement applies during normal operation when Redis is available; when Redis is unavailable, the configured failure policy applies. Fail-open and local fallback may weaken global guarantees. No failure policy was selected or implemented. The requirements-document deliverable is Completed. The owner reports architecture discovery complete (DOCUMENTED); docs/ARCHITECTURE.md now contains a PROPOSED high-level draft (VERIFIED: file contents), awaiting review and approval.
 
 3. Completed Work
 
@@ -38,6 +38,7 @@ The project owner approved the requirements direction and SENT-001 closure with 
 * SENT-000.7 — Completed and approved by the project owner (DOCUMENTED: explicit closure approval). Automatic context checkpointing is configured in AGENTS.md (VERIFIED).
 * SENT-000.8 — Completed and approved by the project owner (DOCUMENTED: explicit closure approval). docs/PROJECT_ROADMAP.md contains all seven planned phases, topics, and deliverables (VERIFIED). At roadmap creation, Phase 0 was In Progress; later phases and all listed deliverables were Not Started.
 * SENT-001 — Completed and approved by the project owner, 2026-10-23 (DOCUMENTED: explicit owner instruction). docs/REQUIREMENTS.md records FR-001 through FR-008, NFR-001 through NFR-008, and the clarified normal-operation and Redis-unavailable guarantees (VERIFIED). Assumptions, proposed initial exclusions, and open architectural choices remain subject to their stated review; no failure policy or implementation was selected.
+* SENT-002 partial progress, 2026-10-26 — Created docs/ARCHITECTURE.md with a PROPOSED Mermaid diagram, normal allow/reject flow, component and trust boundaries, shared atomic state requirements, gateway-failure handling, and unresolved Redis-outage behavior (VERIFIED). No new architectural decision or ticket closure is approved by creation of this draft.
 
 4. Approved Technology Stack
 
@@ -81,6 +82,9 @@ Specific dependency versions have not been selected or verified.
 * No application tests, benchmarks, or proficiency assessments executed during requirements drafting.
 * VERIFIED at SENT-001 closure, 2026-10-23: reviewed requirements consistency across normal operation and Redis-unavailable behavior; all eight FR and eight NFR entries are present exactly once. git diff --check passed. AGENTS.md, docs/DECISIONS.md, and the Git index remained unchanged during clarification and closure synchronization.
 * No application tests, benchmarks, or proficiency assessments executed during SENT-001 closure. No failure policy was selected or implemented; no architecture drafting was performed.
+* VERIFIED at the 2026-10-26 architecture-draft inspection: the working tree was clean; HEAD was f18fecb (SENT-01: Defining functional requirements and non-functional requirements and doc finishing). The repository contained documentation and no application code or build configuration. Live remote state and push execution were not independently verified.
+* docs/ARCHITECTURE.md exists and contains a proposed draft (VERIFIED, 2026-10-26). No application tests, benchmarks, or proficiency assessments executed during drafting.
+* VERIFIED during architecture drafting: reviewed consistency with REQUIREMENTS.md and DEC-001 through DEC-006; git diff --check passed and new-file whitespace was clean. Mermaid source was reviewed but not rendered. AGENTS.md, docs/DECISIONS.md, docs/REQUIREMENTS.md, and the Git index remained unchanged; only the new architecture document and progress records changed.
 
 File contents and current Git status must be verified by Codex before reporting them as current facts.
 
@@ -100,11 +104,11 @@ None reported.
 
 8. Next Micro-Task
 
-SENT-002 — High-Level System Architecture: begin with the project owner’s proposed main components, trust boundaries, and request flow, using docs/REQUIREMENTS.md as the requirements baseline.
+Review docs/ARCHITECTURE.md with the project owner, including the Mermaid diagram, admission ownership, trust boundaries, gateway-crash limitations, and unresolved Redis-failure behavior.
 
 The roadmap records the owner-approved learning scope. It does not authorize application implementation or resolution of open architectural decisions.
 
-SENT-002 is active and In Progress; Phase 0 remains In Progress. Architecture drafting is the next action and was not performed during this synchronization. Architectural decisions and further ticket or phase transitions require explicit project-owner approval.
+SENT-002 remains active and In Progress; Phase 0 remains In Progress. The initial architecture diagram and system-boundary deliverables are In Progress, with owner acceptance pending. Architectural decisions, ticket closure, and further ticket or phase transitions require explicit project-owner approval.
 
 9. Learning Progress
 

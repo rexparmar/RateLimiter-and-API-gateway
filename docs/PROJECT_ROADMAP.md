@@ -1,6 +1,6 @@
 # Sentinel — Persistent Project Roadmap
 
-Last Updated: 2026-10-23
+Last Updated: 2026-10-26
 
 ## Objective and planning horizon
 
@@ -14,12 +14,12 @@ The DOCUMENTED, project-owner-approved plan targets 12 weeks at approximately 8�
 | --- | --- | --- |
 | Active phase | Phase 0 — Engineering Foundations | DOCUMENTED: current project state and owner instruction |
 | Active ticket | SENT-002 — High-Level System Architecture | DOCUMENTED: explicit owner instruction |
-| Ticket status | In Progress; architecture drafting has not begun | DOCUMENTED: owner-authorized transition; VERIFIED: synchronization changed documentation only |
+| Ticket status | In Progress; proposed high-level architecture drafted, owner approval pending | VERIFIED: ARCHITECTURE.md; DOCUMENTED: owner-authorized drafting |
 | Latest approved milestones | SENT-000.7, SENT-000.8, and SENT-001 — Completed and approved | DOCUMENTED: explicit project-owner closure approval |
 | Implementation | No application code or build configuration present at the SENT-000.8 inspection | VERIFIED: repository file inventory |
 | Foundation work | Context-management instructions, current-state documentation, and decision log exist and contain content | VERIFIED: inspected repository files |
 
-The topics and implementation deliverables below describe planned work. Their inclusion does not mean a feature is implemented, a concept is mastered, or a test has passed. The requirements-document milestone is Completed: [REQUIREMENTS.md](REQUIREMENTS.md) records the owner-approved requirements direction with the normal-operation and Redis-unavailable clarification. No failure policy has been selected. The architecture-diagram and system-boundary deliverables remain Not Started; context-management artifacts alone do not satisfy them.
+The topics and implementation deliverables below describe planned work. Their inclusion does not mean a feature is implemented, a concept is mastered, or a test has passed. The requirements-document milestone is Completed: [REQUIREMENTS.md](REQUIREMENTS.md) records the owner-approved requirements direction with the normal-operation and Redis-unavailable clarification. No failure policy has been selected. The architecture diagram and system boundaries are In Progress: [ARCHITECTURE.md](ARCHITECTURE.md) contains a proposed draft awaiting owner approval.
 
 Evidence labels follow [AGENTS.md](../AGENTS.md): VERIFIED means confirmed by inspection or executed commands; DOCUMENTED means recorded in project documentation; PROPOSED means suggested but not approved; UNKNOWN means evidence is insufficient. A missing execution result is not a passing test.
 
@@ -53,8 +53,8 @@ Topics:
 | Planned deliverable | Status | Completion evidence |
 | --- | --- | --- |
 | Requirements document | Completed | [REQUIREMENTS.md](REQUIREMENTS.md), all 16 requirements and operating-mode clarification; explicit owner approval of SENT-001 closure, 2026-10-23 |
-| Initial architecture diagram | Not Started | Not yet recorded |
-| Approved system boundaries | Not Started | Not yet recorded |
+| Initial architecture diagram | In Progress | Proposed Mermaid diagram in [ARCHITECTURE.md](ARCHITECTURE.md); owner acceptance pending |
+| Approved system boundaries | In Progress | Proposed component and trust boundaries in [ARCHITECTURE.md](ARCHITECTURE.md); approval pending |
 
 ## Phase 1 — Java and Gateway Foundations (Weeks 2–3)
 
@@ -216,4 +216,4 @@ Other DOCUMENTED stack choices in [CURRENT_STATE.md](CURRENT_STATE.md), includin
 
 ## Next micro-task
 
-Begin SENT-002 — High-Level System Architecture with the project owner’s proposed main components, trust boundaries, and request flow based on the approved requirements direction. Phase 0 remains In Progress; architectural decisions and subsequent ticket or phase transitions require project-owner approval.
+Review the proposed high-level architecture and Mermaid diagram with the project owner under SENT-002. Architecture acceptance and ticket closure remain pending. Phase 0 remains In Progress; architectural decisions and subsequent ticket or phase transitions require project-owner approval.
