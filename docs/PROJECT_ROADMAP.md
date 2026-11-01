@@ -12,10 +12,10 @@ The DOCUMENTED, project-owner-approved plan targets 12 weeks at approximately 8�
 
 | Item | Current value | Evidence |
 | --- | --- | --- |
-| Current phase | Phase 2 — Rate Limiting and Concurrency: In Progress | DOCUMENTED: owner-authorized SENT-009; Phase 1 not formally closed |
-| Active ticket | SENT-009 — Per-Client Identity for Sentinel | DOCUMENTED: explicit owner instruction, 2026-11-01 |
-| Ticket status | In Progress; implementation and verification complete; owner closure approval pending | VERIFIED: focused controlled identity checks and full Java 21 regression passed; second real loopback source unsupported |
-| Latest approved milestones | SENT-000.7, SENT-000.8, SENT-001, SENT-002, SENT-005, SENT-006, SENT-007, and SENT-008 — Completed and approved | DOCUMENTED: owner closure approvals; SENT-008 verification is in CURRENT_STATE.md section 27 |
+| Current phase | Phase 3 — Distributed Rate Limiting: In Progress | DOCUMENTED: owner-authorized SENT-010; earlier unfinished tickets/phases are not implicitly closed |
+| Active ticket | SENT-010 — Redis Foundation and Shared-State Design | DOCUMENTED: explicit owner instruction, 2026-11-01 |
+| Ticket status | In Progress; foundation/design and verification complete; owner review and closure approval pending | VERIFIED: CURRENT_STATE.md section 29 |
+| Latest approved milestones | SENT-000.7, SENT-000.8, SENT-001, SENT-002, and SENT-005 through SENT-009 — Completed and approved | DOCUMENTED: owner closure approvals; SENT-009 verification is in CURRENT_STATE.md section 28 |
 | Implementation | Existing gateway behavior preserved; standard-library regression harness added under gateway/tests/ | VERIFIED: one documented command builds with Java 21/Maven Wrapper, runs isolated HTTP scenarios with an owned backend, and cleans up test processes. No new dependencies or production changes. |
 | Foundation work | Context-management instructions, current-state documentation, and decision log exist and contain content | VERIFIED: inspected repository files |
 
@@ -30,7 +30,7 @@ Evidence labels follow [AGENTS.md](../AGENTS.md): VERIFIED means confirmed by in
 | 0 — Engineering Foundations | 1 | Completed |
 | 1 — Java and Gateway Foundations | 2–3 | In Progress |
 | 2 — Rate Limiting and Concurrency | 4–5 | In Progress |
-| 3 — Distributed Rate Limiting | 6–7 | Not Started |
+| 3 — Distributed Rate Limiting | 6–7 | In Progress |
 | 4 — Reliability Engineering | 8–9 | Not Started |
 | 5 — Observability and Performance | 10–11 | Not Started |
 | 6 — Production Readiness | 12 | Not Started |
@@ -89,7 +89,7 @@ Topics:
 
 Status: In Progress
 
-SENT-005’s preparatory permanent allowance has verified execution evidence. SENT-008’s approved local token bucket implements capacity five, refill one token/second, injected monotonic time, fractional credit, and atomic per-client state; deterministic and isolated gateway regression suites pass. SENT-009 now addresses direct-peer IP identity while preserving that algorithm. This Phase 2 work does not assert Phase 1 completion. No Redis or distributed implementation is selected. See CURRENT_STATE.md sections 27–28.
+SENT-005’s preparatory permanent allowance has verified execution evidence. SENT-008’s approved local token bucket implements capacity five, refill one token/second, injected monotonic time, fractional credit, and atomic per-client state; deterministic and isolated gateway regression suites pass. SENT-009’s approved direct-peer IP identity preserves that algorithm and passed focused and full regression checks. This work does not assert Phase 1 completion. No Redis-backed limiter is implemented. See CURRENT_STATE.md sections 27–29.
 
 Topics:
 
@@ -111,7 +111,9 @@ Topics:
 
 ## Phase 3 — Distributed Rate Limiting (Weeks 6–7)
 
-Status: Not Started
+Status: In Progress
+
+SENT-010 now has an inspected but unexecuted localhost-only Redis Compose definition, reactive Spring Redis configuration, verified native and Spring-client PONG responses, a passing Java 21 package and complete regression suite, and a proposed shared-state/Lua design. Redis is approved in principle by DEC-003, while the proposed key structure, expiration, exact atomic operation, and outage behavior remain open. The active local limiter and gateway behavior remain unchanged. Owner closure approval is pending. See CURRENT_STATE.md section 29.
 
 Topics:
 
@@ -224,4 +226,4 @@ Other DOCUMENTED stack choices in [CURRENT_STATE.md](CURRENT_STATE.md), includin
 
 ## Next micro-task
 
-SENT-009 is active with implementation and planned controlled/full regression checks passing. Real HTTP verified same-source quota sharing and spoofed-header resistance; controlled Spring exchanges verified distinct-IP independence and missing/unresolved 503 behavior. The environment rejected a `127.0.0.2` source bind, so no second real-socket identity result is claimed. The next action is owner review and explicit closure approval. See CURRENT_STATE.md section 28.
+SENT-010 is active with its planned foundation, verification, and proposed design complete. The next action is owner review, explanation of why client-side GET/SET is unsafe, and an explicit closure decision. The existing local limiter remains wired into the gateway. See CURRENT_STATE.md section 29.

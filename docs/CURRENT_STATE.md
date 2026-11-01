@@ -8,25 +8,26 @@ Project: Sentinel — Distributed Rate Limiter & API Gateway
 
 1. Current Position
 
-* Phase: 2 — Rate Limiting and Concurrency (SENT-009 authorized; Phase 1 not formally closed)
+* Phase: 3 — Distributed Rate Limiting (SENT-010 authorized; earlier unfinished tickets/phases are not implicitly closed)
 * Phase Status: In Progress
-* Roadmap Weeks: 4–5 (planned learning sequence, not elapsed-time verification)
-* Milestone: SENT-009 implementation and focused/full regression verification passed; owner closure approval pending
-* Active Ticket: SENT-009 — Per-Client Identity for Sentinel
+* Roadmap Weeks: 6–7 (planned learning sequence, not elapsed-time verification)
+* Milestone: SENT-010 Redis foundation, Spring connectivity, regression verification, and proposed design complete; owner review pending
+* Active Ticket: SENT-010 — Redis Foundation and Shared-State Design
 * Status: In Progress
 
 2. Current Objective
 
-SENT-009 is In Progress with implementation and verification complete; explicit owner closure approval remains pending. DemoRateLimitGatewayFilterFactory derives the limiter key from the directly connected peer's resolved numeric IP, excludes the port, and reads no identity/forwarding header. Controlled Spring exchange checks passed same-IP quota sharing, different-IP independence, spoofed-header resistance, missing/unresolved HTTP 503 with zero limiter/chain calls, and 429 backend exclusion. The full Java 21 regression passed build and all prior scenarios; real HTTP also passed same-source quota/header spoofing with five backend receipts. This macOS environment rejected binding `127.0.0.2` with EADDRNOTAVAIL, so it did not independently verify a second source IP over a real socket (VERIFIED; section 28). Unfinished Phase 1 tickets are not implicitly closed.
+SENT-010 is In Progress pending owner review and closure approval. A minimal Compose definition pins `redis:7.4.11-alpine`, binds only `127.0.0.1:6379`, and defines a `redis-cli ping` health check; Docker execution remains unverified because Docker is unavailable. The gateway has the reactive Spring Redis starter and explicit localhost connection properties. Native Redis and the real Spring application client both returned `PONG`. The Java 21 Maven package and complete prior regression suite pass. REDIS_SHARED_STATE_DESIGN.md records a proposed fixed-point per-client hash and one atomic Redis-time/Lua admission operation without implementing it or selecting an outage policy. LocalRateLimiter and the gateway filter were not modified.
 
 The project owner has approved the high-level architectural direction and instructed closure of SENT-002 (DOCUMENTED). The readiness review verified the required Phase 0 artifacts and consistency with REQUIREMENTS.md. Phase 0 is Completed against the roadmap's documented deliverables and review/approval rules; no separate Phase 0 acceptance checklist is present. No independent proficiency assessment or runtime validation is inferred from this completion.
 
 The owner authorized and wrote a standalone exercise in excercise/sent-003-java-basics/src with file-by-file mentoring (DOCUMENTED: owner instruction; VERIFIED: reviewed source). Java 21 compilation and execution succeeded for both always-allow and always-reject implementations. This is guided practical evidence, not an independent proficiency assessment or a completed production rate limiter. See section 13 for commands, results, and limitations.
 
-Strict shared enforcement applies during normal operation when Redis is available; the configured failure policy applies during outages and may weaken global guarantees. SENT-008 implements a local five-token, one-token/second token bucket with verified fixed-point refill and atomic per-client updates. Distributed implementation, identity, load balancer, and Redis-failure policy remain open. Framework versions remain Boot 4.1.2, Cloud 2025.1.4, and Gateway Server WebFlux 5.0.4. The fixed demo-client identity stays temporary learning behavior.
+Strict shared enforcement applies during normal operation when Redis is available; the configured failure policy applies during outages and may weaken global guarantees. SENT-008 implements a local five-token, one-token/second token bucket with verified fixed-point refill and atomic per-client updates. SENT-009 replaced the temporary fixed identity with the resolved direct-peer numeric IP and was approved after focused and full regression verification. The Redis data model, atomic operation, expiration, load balancer, and Redis-failure policy remain open. Framework versions remain Boot 4.1.2, Cloud 2025.1.4, and Gateway Server WebFlux 5.0.4.
 
 3. Completed Work
 
+* SENT-009 — Completed and approved by the owner, 2026-11-01 (DOCUMENTED: explicit closure approval). Direct resolved peer IP identity, spoofed-header resistance, missing/unresolved HTTP 503 behavior, quota independence, backend exclusion, Java 21 build, and complete regression evidence are recorded in section 28 (VERIFIED). A second source IP could not be exercised over a real socket on this host and was tested with controlled Spring exchanges instead.
 * SENT-007 — Completed and approved by the owner, 2026-11-01 (DOCUMENTED: explicit instruction). Java 21 package, sequential/restart/concurrent HTTP, backend receipts, and health passed (VERIFIED: section 26). These results cover permanent allowance, not token-bucket behavior.
 * SENT-008 — Completed and approved by the owner, 2026-11-01 (DOCUMENTED: explicit closure approval). The local token bucket uses injected monotonic time, fixed-point fractional credit, capacity capping, immutable per-client state, and atomic ConcurrentHashMap updates. Seven deterministic checks and the isolated gateway build/sequential/refill/restart/health/backend/concurrency regression passed (VERIFIED: section 27). This is process-local behavior and does not imply distributed enforcement.
 * SENT-006 — Completed and approved by the owner, 2026-11-01 (DOCUMENTED: closure authorized after verifying existing acceptance evidence). Route-scoped filter, shared injected limiter, fixed demo-client, five-admission cap, backend exclusion, health, restart reset, and successful Java 21 package were reviewed (VERIFIED; sections 24–25). Assisted implementation and guided explanation are recorded; no independent proficiency claim or broader production readiness is inferred.
@@ -101,13 +102,15 @@ File contents and current Git status must be verified by Codex before reporting 
 6. Current Restrictions
 
 * Explicit initialization authorization covers the minimal gateway/ scaffold, Maven Wrapper, Gateway Server WebFlux, Actuator, and their dependency downloads. The owner will implement actual gateway behavior with mentoring.
-* SENT-009 authorizes owner-written direct-peer IP extraction in the existing route filter plus focused tests and regression-harness adaptation. Guide the owner's implementation; do not trust identity or forwarding headers. Preserve the token bucket and HTTP 429 behavior. No Redis, authentication system, unnecessary dependency/refactoring, commits, or pushes.
+* SENT-010 authorizes a minimal local Redis Compose definition, necessary Redis connectivity configuration/dependency, connectivity verification, and a proposed shared token-bucket/Lua design. Preserve the active local limiter and current gateway admission behavior. Do not implement the Redis limiter, Lua operation, or outage policy. No unrelated refactoring, commits, or pushes.
 * Do not implement future-phase features.
 * Automatic progress updates to this file and progress indicators in docs/PROJECT_ROADMAP.md, once it exists, have standing project-owner approval under AGENTS.md. Other file changes require explicit approval.
 * Application code, dependency changes, architectural decisions, scope or learning-objective changes, ticket closure, commits, pushes, and destructive operations still require explicit project-owner approval.
 * Work on one micro-task at a time.
 
 7. Current Blockers
+
+VERIFIED at SENT-010 startup: `docker`, `docker compose`, and `docker info` are unavailable because the Docker command is not installed. This blocks executing the Compose service in the current environment. Native Homebrew Redis 8.8.0 was subsequently started on `127.0.0.1:6379` with persistence disabled, and `redis-cli ping` returned `PONG`. Spring-level connectivity verification remains pending.
 
 No blocker identified for continuing the standalone Java exercise. Java 21.0.11 runtime and compiler are usable through their explicit JDK paths; the default java and javac commands point to Java 25.0.3, so they were not used for the verified Java 21 run.
 
@@ -121,13 +124,13 @@ Documentation discrepancy: ARCHITECTURE.md retains its PROPOSED and approval-pen
 
 8. Next Micro-Task
 
-Next action for SENT-009: owner review and closure decision. Implementation, controlled identity/503/backend-exclusion checks, real HTTP same-source/spoofed-header verification, Maven package, and the complete prior regression suite pass. The unavailable `127.0.0.2` bind remains an explicit environment limitation, not a claimed real-socket result. Do not close SENT-009 or advance tickets without owner approval.
+Next action for SENT-010: owner reviews the Redis foundation, verified results, and proposed shared-state design, explains the atomicity requirement, and decides whether to approve ticket closure. Do not replace LocalRateLimiter or advance tickets before that approval.
 
 Official Spring documentation and release records establish the approved compatibility line; exact parent/BOM artifact downloads returned HTTP 200, and the resulting build and startup passed. Section 14 records sources and actual results. Constructor null-validation and independent compiler/runtime explanation remain unverified; they were not silently marked complete when the owner requested moving to the actual project.
 
 The roadmap records the owner-approved learning scope. Further behavior and open architectural decisions remain subject to the learning protocol and applicable owner authorization.
 
-Phase 0, SENT-002, and SENT-008 remain Completed. SENT-009 continues approved local gateway work without asserting Phase 1 completion or closing SENT-003/SENT-004. Initial regression automation is accepted through SENT-007 approval; token-bucket implementation and revised tests are accepted through SENT-008 approval.
+Phase 0 and SENT-002, SENT-005 through SENT-009 remain Completed as recorded. Starting SENT-010 and Phase 3 work does not assert Phase 1 closure or close SENT-003/SENT-004. Phase 2 deliverables are verified, but no separate owner approval to close the phase is inferred.
 
 9. Learning Progress
 
@@ -604,3 +607,23 @@ VERIFIED focused and full regression, 2026-11-01: added dependency-free `PerClie
 The documented command `python3 gateway/tests/run_regression.py` ran with Java 21.0.11 and exited 0. Maven Wrapper package passed; all seven deterministic token-bucket checks and all five controlled identity checks passed. Sequential and restart scenarios each returned five 200, two 429, later observed one replenished 200, recorded five backend receipts before refill and six total, and kept health UP. The real HTTP identity scenario bound `127.0.0.1`, changed all three spoofable headers on every call, completed in 97,813,375 nanoseconds, returned five 200 then 429, recorded exactly five backend receipts, and kept health UP. The attempted `127.0.0.2` source bind failed with EADDRNOTAVAIL (errno 49), so a second real loopback source was unavailable and no contrary result is claimed. The 100-request/20-worker HTTP scenario completed in 99,293,250 nanoseconds with five 200, 95 HTTP 429, exactly five backend receipts, and health UP.
 
 Saved evidence: `gateway/target/regression/run-o8uh1hvw/results.json` has `passed: true` and 22 total backend receipts. All four test gateway PIDs were absent after cleanup. The known Hibernate Validator HV000271 deprecation warning and Netty macOS native DNS-provider fallback appeared without preventing literal-address tests. No dependency, Redis, authentication, staging, commit, or push changed. `git diff --check` passed. SENT-009 remains In Progress solely pending owner closure approval.
+
+29. SENT-009 Closure and SENT-010 Start — 2026-11-01
+
+DOCUMENTED: the owner approved SENT-009 as complete and started SENT-010: Redis Foundation and Shared-State Design. The ticket authorizes a minimal local Docker Compose Redis service, necessary connectivity configuration, an actual connection check, and documentation of a proposed atomic Lua admission design. The existing local limiter and gateway admission behavior must remain unchanged. Implementing the Redis limiter, Lua script, or Redis outage policy is outside this ticket.
+
+VERIFIED startup inspection: the working tree was clean and HEAD was `7c11c4f` before this automatic context checkpoint. The gateway still injects the RateLimiter interface into DemoRateLimitGatewayFilterFactory and LocalRateLimiter still owns process-local per-client Bucket snapshots updated through ConcurrentHashMap.compute(). The POM contains Gateway Server WebFlux and Actuator but no Redis dependency; application.properties contains the route and server configuration but no Redis settings. No Compose file exists. Existing architecture and DEC-003 require shared Redis state and atomic admission while leaving the key structure, expiration, exact atomic operation, and outage behavior open.
+
+VERIFIED environment inspection: the Docker command is unavailable, so Compose execution cannot currently be verified. Homebrew `redis-server` and `redis-cli` executables are installed. No Redis server was started and no connectivity, build, or regression test ran at this checkpoint. No production source, dependency, architecture decision, staging, commit, or push changed.
+
+PROPOSED design direction for review during SENT-010: all gateway instances address one per-client Redis bucket and perform time read, refill calculation, admission decision, token consumption, state write, and expiration update in one short Lua operation. Redis server time avoids storing incomparable System.nanoTime values from different JVMs. Exact key/field names, numeric representation, expiration, script return shape, and operational loading strategy remain undecided. A separate GET followed by SET is unsafe because concurrent gateways can read the same remaining token and both admit before either write becomes visible.
+
+VERIFIED setup checkpoint: created root compose.yaml with pinned `redis:7.4.11-alpine`, localhost-only `127.0.0.1:6379:6379` publication, and a bounded `redis-cli ping` health check. Docker is unavailable, so the file was inspected but not executed. Added only `spring-boot-starter-data-redis-reactive` to the gateway POM and configured `spring.data.redis.host=127.0.0.1` and port 6379. Maven resolved Spring Data Redis 4.1.2 and Lettuce 7.5.2.RELEASE. Java 21 `./mvnw package` exited 0 with BUILD SUCCESS.
+
+VERIFIED native connectivity: started installed Redis 8.8.0 bound to `127.0.0.1:6379` with snapshotting and append-only persistence disabled for the local check; `redis-cli ping` returned `PONG`. Added a test-only RedisConnectivityChecks scaffold that starts the real Spring application context on an ephemeral port, obtains the auto-configured ReactiveStringRedisTemplate, and validates a PONG response. Its intentionally incomplete ping method is reserved for the owner's learning attempt. Java 21 offline test compilation exited 0 with BUILD SUCCESS. The Spring PING check, regression suite, storage-design review, and SENT-010 closure remain pending. No limiter/filter source, admission behavior, staging, commit, or push changed.
+
+VERIFIED completion checkpoint: at the owner's request, implemented the focused reactive PING with a three-second bound. Compilation first identified that Spring Data Redis 4.1.2 exposes `ping()` directly on ReactiveRedisConnection rather than ReactiveServerCommands; inspecting the installed interface with Java 21 `javap` confirmed the correct API. The first focused execution then exposed builder property precedence and attempted occupied port 8080; passing `--server.port=0` as a command-line argument corrected the test without disturbing the existing process. The corrected check started the real Spring application context on port 59660, received `PONG`, printed `PASS: Spring Redis connectivity returned PONG`, closed cleanly, and exited 0.
+
+VERIFIED full regression after the Redis changes: `python3 gateway/tests/run_regression.py` used Java 21.0.11 and saved passing evidence to `gateway/target/regression/run-zwrawdns/results.json`. Maven Wrapper package passed; seven deterministic token-bucket and five controlled identity checks passed. Sequential and restart scenarios each produced `[200, 200, 200, 200, 200, 429, 429]`, five backend receipts before refill, six after the verified refill, and health UP. Real HTTP identity produced five 200 and one 429 with five receipts and spoofed headers ignored; the known second-loopback limitation remained. The 100-request scenario produced exactly five HTTP 200, 95 HTTP 429, and five backend receipts; health remained UP. LocalRateLimiter and the gateway filter have no diff.
+
+PROPOSED design documentation: REDIS_SHARED_STATE_DESIGN.md describes one per-client Redis hash with integer fixed-point token units and a Redis-server microsecond timestamp. A future short Lua operation would use Redis TIME, refill/cap/decide/consume/write/expire atomically, and return the decision plus remaining state. Exact key encoding, expiration, scale, return shape, script loading, topology, and outage policy remain open. No Lua code or Redis-backed limiter was added. Docker Compose was not executed. SENT-010 remains In Progress pending owner review and explicit closure approval.
