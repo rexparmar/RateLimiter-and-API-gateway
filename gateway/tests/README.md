@@ -26,15 +26,28 @@ ignored through `gateway/target/`.
    to verify initial capacity, exact one-second and fractional refill, capacity
    capping, independent clients, preserved credit after rejection, and exactly
    five admissions out of 100 concurrent requests while time is frozen.
-2. **Sequential and refill:** a fresh JVM admits five immediate requests (HTTP
+2. **Controlled per-client identity:** dependency-free Spring exchange fixtures
+   verify that one resolved numeric IP shares a quota across changing source
+   ports, two different IPs have independent quotas, and changing X-Client-ID,
+   X-Forwarded-For, and Forwarded values cannot reset a quota. Missing and
+   unresolved remote addresses must return HTTP 503 without invoking the
+   limiter or forwarding chain. HTTP 429 also must not invoke the chain.
+3. **Sequential and refill:** a fresh JVM admits five immediate requests (HTTP
    200 with backend JSON), rejects requests six and seven (HTTP 429), and sends
    exactly five requests to the backend before refill. Bounded polling then
    requires a replenished request to return HTTP 200 and reach the backend.
    Health remains UP.
-3. **Restart:** after stopping that JVM, the same JAR/configuration gets a new
+4. **Restart:** after stopping that JVM, the same JAR/configuration gets a new
    JVM and a fresh five-token bucket. The sequential and refill scenario is
    repeated while the backend stays alive.
-4. **Concurrency:** another fresh JVM handles 100 requests submitted to 20
+5. **Real HTTP identity:** requests bind their client socket to a specific
+   loopback source address and change all three spoofable headers on every
+   request. One source IP must receive five HTTP 200 responses followed by 429,
+   with exactly five backend receipts. The harness attempts a second loopback
+   source (`127.0.0.2`); if the OS rejects that bind with `EADDRNOTAVAIL`, the
+   result records the environment limitation rather than claiming a second
+   real source was tested. Any other socket failure fails the run.
+6. **Concurrency:** another fresh JVM handles 100 requests submitted to 20
    worker threads. The first 20 workers wait together at a start gate. The
    admitted count must stay within the initial capacity plus the tokens that
    could legitimately refill during the measured run. Every other response
@@ -71,8 +84,12 @@ The script targets macOS/Linux (`mvnw`), not Windows.
 ## Review together
 
 Start with `LocalRateLimiterDeterministicChecks`: its controlled clock makes the
-algorithm boundaries exact. Then review `test_sequential()` for HTTP forwarding,
-rejection, refill, backend receipts, and health. In `test_concurrent()`, the
+algorithm boundaries exact. `PerClientIdentityChecks` uses controlled Spring
+request/exchange/response objects and the real filter without a new test
+dependency. Then review `test_sequential()` for HTTP forwarding, rejection,
+refill, backend receipts, and health; `test_source_ip_identity()` binds the real
+client source socket and changes spoofed headers. In `test_concurrent()`, the
 start gate creates contention and collecting every future propagates failures.
 These are correctness regressions, not load benchmarks or proof of all thread
-schedules. Fixed identity and process-local state remain intentional limitations.
+schedules. Direct-peer IP identity and process-local state remain intentional
+limitations.

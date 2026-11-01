@@ -6,6 +6,8 @@ from concurrent.futures import ThreadPoolExecutor
 from contextlib import contextmanager
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
+import errno
+import http.client
 import json
 import os
 import re
@@ -17,6 +19,7 @@ import threading
 import time
 import traceback
 import urllib.error
+import urllib.parse
 import urllib.request
 import zipfile
 
@@ -40,6 +43,21 @@ def request(url):
         response = error  # A 429 is a response to inspect, not a transport failure.
     with response:
         return response.status, response.read().decode("utf-8")
+
+
+def request_from(url, source_ip, headers=None):
+    parts = urllib.parse.urlsplit(url)
+    path = parts.path or "/"
+    if parts.query:
+        path += "?" + parts.query
+    connection = http.client.HTTPConnection(
+        parts.hostname, parts.port, timeout=10, source_address=(source_ip, 0))
+    try:
+        connection.request("GET", path, headers=headers or {})
+        response = connection.getresponse()
+        return response.status, response.read().decode("utf-8")
+    finally:
+        connection.close()
 
 
 def check_health(url):
@@ -123,25 +141,42 @@ def build(env, run_dir):
     print("PASS Maven Wrapper package", flush=True)
 
 
-def test_token_bucket(java, run_dir):
-    classpath = os.pathsep.join([
+def prepare_test_classpath(run_dir):
+    library_dir = run_dir / "runtime-libs"
+    library_dir.mkdir()
+    libraries = []
+    with zipfile.ZipFile(JAR) as jar:
+        for name in sorted(jar.namelist()):
+            if name.startswith("BOOT-INF/lib/") and name.endswith(".jar"):
+                destination = library_dir / Path(name).name
+                with jar.open(name) as source, destination.open("wb") as target:
+                    shutil.copyfileobj(source, target)
+                libraries.append(str(destination))
+    check(libraries, "Executable JAR contained no runtime libraries")
+    return os.pathsep.join([
         str(GATEWAY / "target/test-classes"),
         str(GATEWAY / "target/classes"),
+        *libraries,
     ])
+
+
+def run_java_checks(java, classpath, run_dir, class_name, log_name,
+                    expected_count, description):
     command = [java, "-cp", classpath,
-               "com.sentinel.gateway.ratelimit.LocalRateLimiterDeterministicChecks"]
+               "com.sentinel.gateway.ratelimit." + class_name]
     result = subprocess.run(command, cwd=GATEWAY, text=True,
                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                             timeout=60)
-    (run_dir / "token-bucket-tests.log").write_text(result.stdout)
+    log_path = run_dir / log_name
+    log_path.write_text(result.stdout)
     check(result.returncode == 0,
-          "Deterministic token-bucket tests failed; inspect "
-          + str(run_dir / "token-bucket-tests.log"))
+          description + " failed; inspect " + str(log_path))
     passed = [line.removeprefix("PASS: ") for line in result.stdout.splitlines()
               if line.startswith("PASS: ")]
-    check(len(passed) == 7,
-          "Expected seven deterministic token-bucket checks; got " + repr(passed))
-    print("PASS deterministic token bucket: " + ", ".join(passed), flush=True)
+    check(len(passed) == expected_count,
+          "Expected {} {} checks; got {}"
+          .format(expected_count, description, repr(passed)))
+    print("PASS " + description + ": " + ", ".join(passed), flush=True)
     return passed
 
 
@@ -294,6 +329,63 @@ def test_concurrent(url, backend):
             "backend_receipts": len(receipts), "health": "UP"}
 
 
+def test_source_ip_identity(url, backend):
+    before = len(backend.snapshot())
+    sources = ["127.0.0.1", "127.0.0.2"]
+    statuses = {}
+    unsupported_source = None
+    started = time.monotonic_ns()
+
+    for source_ip in sources:
+        source_statuses = []
+        for request_number in range(1, 7):
+            headers = {
+                "X-Client-ID": "spoof-client-{}".format(request_number),
+                "X-Forwarded-For": "198.51.100.{}".format(request_number),
+                "Forwarded": "for=203.0.113.{}".format(request_number),
+            }
+            try:
+                status, body = request_from(url + "/hello", source_ip, headers)
+            except OSError as error:
+                if source_ip != "127.0.0.1" and error.errno == errno.EADDRNOTAVAIL:
+                    unsupported_source = {
+                        "address": source_ip,
+                        "errno": error.errno,
+                        "reason": str(error),
+                    }
+                    break
+                raise
+            source_statuses.append(status)
+            if status == 200:
+                check(json.loads(body) == HELLO,
+                      "Admitted {} request did not return backend JSON"
+                      .format(source_ip))
+        if unsupported_source is not None:
+            break
+        statuses[source_ip] = source_statuses
+
+    elapsed_nanos = time.monotonic_ns() - started
+    check(elapsed_nanos < 1_000_000_000,
+          "Source-IP identity burst took {} ns, allowing legitimate refill; "
+          "exact five-token assertion cannot be made".format(elapsed_nanos))
+    expected = [200, 200, 200, 200, 200, 429]
+    for source_ip in statuses:
+        check(statuses[source_ip] == expected,
+              "Statuses for {} were {}".format(source_ip, statuses[source_ip]))
+
+    receipts = backend_receipts_since(backend, before)
+    expected_receipts = 10 if unsupported_source is None else 5
+    check(len(receipts) == expected_receipts,
+          "Expected {} backend receipts; got {}"
+          .format(expected_receipts, len(receipts)))
+    check_health(url)
+    return {"source_statuses": statuses, "elapsed_nanos": elapsed_nanos,
+            "backend_receipts": len(receipts), "health": "UP",
+            "spoofed_headers_changed_per_request": True,
+            "second_loopback_source_supported": unsupported_source is None,
+            "unsupported_source": unsupported_source}
+
+
 def main():
     results_root = GATEWAY / "target/regression"
     results_root.mkdir(parents=True, exist_ok=True)
@@ -305,12 +397,21 @@ def main():
         summary["java"] = version
         print("Using " + version, flush=True)
         build(env, run_dir)
-        summary["deterministic_token_bucket"] = test_token_bucket(java, run_dir)
+        classpath = prepare_test_classpath(run_dir)
+        summary["deterministic_token_bucket"] = run_java_checks(
+            java, classpath, run_dir,
+            "LocalRateLimiterDeterministicChecks", "token-bucket-checks.log",
+            7, "deterministic token bucket")
+        summary["controlled_identity"] = run_java_checks(
+            java, classpath, run_dir,
+            "PerClientIdentityChecks", "identity-checks.log",
+            5, "controlled per-client identity")
         with Backend(run_dir / "backend.jsonl") as backend:
             config = write_test_config(run_dir, backend)
             # Each context starts/stops its own JVM; the demo server is never touched.
             for name, test in [("sequential", test_sequential),
                                ("restart_reset", test_sequential),
+                               ("source_ip_identity", test_source_ip_identity),
                                ("concurrent", test_concurrent)]:
                 with running_gateway(java, env, config, run_dir, name) as (url, pid):
                     result = test(url, backend)

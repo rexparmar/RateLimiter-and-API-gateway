@@ -1,5 +1,7 @@
 package com.sentinel.gateway.filter;
 
+import java.net.InetSocketAddress;
+
 import com.sentinel.gateway.ratelimit.RateLimiter;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
@@ -19,7 +21,14 @@ public class DemoRateLimitGatewayFilterFactory
     @Override
     public GatewayFilter apply(Config config) {
         return (exchange, chain) -> {
-            boolean admitted = rateLimiter.processRequest("demo-client");
+            InetSocketAddress remoteAddress = exchange.getRequest().getRemoteAddress();
+            if (remoteAddress == null || remoteAddress.getAddress() == null) {
+                exchange.getResponse().setStatusCode(HttpStatus.SERVICE_UNAVAILABLE);
+                return exchange.getResponse().setComplete();
+            }
+
+            String clientId = remoteAddress.getAddress().getHostAddress();
+            boolean admitted = rateLimiter.processRequest(clientId);
             if (admitted) {
                 return chain.filter(exchange);
             }

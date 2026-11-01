@@ -14,7 +14,7 @@ The DOCUMENTED, project-owner-approved plan targets 12 weeks at approximately 8�
 | --- | --- | --- |
 | Current phase | Phase 2 — Rate Limiting and Concurrency: In Progress | DOCUMENTED: owner-authorized SENT-009; Phase 1 not formally closed |
 | Active ticket | SENT-009 — Per-Client Identity for Sentinel | DOCUMENTED: explicit owner instruction, 2026-11-01 |
-| Ticket status | In Progress; direct-peer IP extraction and missing-address policy pending | VERIFIED: fixed `demo-client` key and nullable Spring remote-address API inspected; no SENT-009 code/test change yet |
+| Ticket status | In Progress; implementation and verification complete; owner closure approval pending | VERIFIED: focused controlled identity checks and full Java 21 regression passed; second real loopback source unsupported |
 | Latest approved milestones | SENT-000.7, SENT-000.8, SENT-001, SENT-002, SENT-005, SENT-006, SENT-007, and SENT-008 — Completed and approved | DOCUMENTED: owner closure approvals; SENT-008 verification is in CURRENT_STATE.md section 27 |
 | Implementation | Existing gateway behavior preserved; standard-library regression harness added under gateway/tests/ | VERIFIED: one documented command builds with Java 21/Maven Wrapper, runs isolated HTTP scenarios with an owned backend, and cleans up test processes. No new dependencies or production changes. |
 | Foundation work | Context-management instructions, current-state documentation, and decision log exist and contain content | VERIFIED: inspected repository files |
@@ -224,4 +224,4 @@ Other DOCUMENTED stack choices in [CURRENT_STATE.md](CURRENT_STATE.md), includin
 
 ## Next micro-task
 
-SENT-009 is active. The smallest next action is to choose the explicit missing-remote-address response, then let the owner replace the fixed `demo-client` key with the resolved directly connected peer IP. Header-derived identity remains forbidden. See CURRENT_STATE.md section 28.
+SENT-009 is active with implementation and planned controlled/full regression checks passing. Real HTTP verified same-source quota sharing and spoofed-header resistance; controlled Spring exchanges verified distinct-IP independence and missing/unresolved 503 behavior. The environment rejected a `127.0.0.2` source bind, so no second real-socket identity result is claimed. The next action is owner review and explicit closure approval. See CURRENT_STATE.md section 28.
