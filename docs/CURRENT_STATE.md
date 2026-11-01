@@ -1,6 +1,6 @@
 Sentinel — Current Project State
 
-Last Updated: 2026-10-29
+Last Updated: 2026-10-31
 Repository: RateLimiter
 Project: Sentinel — Distributed Rate Limiter & API Gateway
 
@@ -11,19 +11,19 @@ Project: Sentinel — Distributed Rate Limiter & API Gateway
 * Phase: 1 — Java and Gateway Foundations
 * Phase Status: In Progress
 * Roadmap Weeks: 2–3 (planned learning sequence, not elapsed-time verification)
-* Milestone: Owner-written GET /hello route reviewed and HTTP-verified; unknown-path, backend-outage, and restoration checks recorded
-* Active Ticket: SENT-004 — Basic HTTP Routing
+* Milestone: SENT-005 sequential and concurrent test harness passed with Java 21; limiter preserved; owner review/closure pending
+* Active Ticket: SENT-005 — In-Memory Rate Limiter
 * Status: In Progress
 
 2. Current Objective
 
-SENT-004 is In Progress under the owner's explicit instruction (DOCUMENTED, 2026-10-29). The owner's GET /hello route was reviewed, packaged with Java 21, and exercised through Sentinel on port 8080 (VERIFIED). Forwarding returned HTTP 200 and the backend JSON; /unknown returned 404; stopping the backend caused HTTP 500 with a connection-refused log; restarting it restored HTTP 200. See section 16. Owner explanation, review of results, and ticket closure approval remain pending. SENT-003's scaffold milestone is verified in section 14; formal SENT-003 closure approval is not recorded.
+SENT-005 is In Progress under the owner's explicit instruction (DOCUMENTED, 2026-10-31). The exercise is a per-client in-memory allowance cap using Java 21 and ConcurrentHashMap.compute(): admit the first five requests and reject subsequent requests without increasing the count. At the owner's explicit requests, Codex supplied the final compute() rewrite and test harness. Sequential checks and concurrent runs passed with Java 21.0.11 (VERIFIED; section 21). The existing limiter was preserved during testing. Owner understanding/review and explicit closure approval remain pending; assisted code and bounded concurrency tests are not an independent proficiency assessment or proof of all possible interleavings. SENT-003/SENT-004 closure approvals remain unrecorded. No reset, HTTP integration, Redis, or dependency changes are in scope.
 
 The project owner has approved the high-level architectural direction and instructed closure of SENT-002 (DOCUMENTED). The readiness review verified the required Phase 0 artifacts and consistency with REQUIREMENTS.md. Phase 0 is Completed against the roadmap's documented deliverables and review/approval rules; no separate Phase 0 acceptance checklist is present. No independent proficiency assessment or runtime validation is inferred from this completion.
 
 The owner authorized and wrote a standalone exercise in excercise/sent-003-java-basics/src with file-by-file mentoring (DOCUMENTED: owner instruction; VERIFIED: reviewed source). Java 21 compilation and execution succeeded for both always-allow and always-reject implementations. This is guided practical evidence, not an independent proficiency assessment or a completed production rate limiter. See section 13 for commands, results, and limitations.
 
-Strict shared enforcement applies during normal operation when Redis is available; when Redis is unavailable, the configured failure policy applies. Fail-open and local fallback may weaken global guarantees. The algorithm, identity mechanism, load balancer, and Redis-failure policy remain explicitly undecided. For this approved scaffold, Spring Boot 4.1.2, Spring Cloud 2025.1.4, and Gateway Server WebFlux are selected and verified. SENT-004 authorizes owner-written basic routing and a local test backend; rate limiting, Redis, authentication, and custom filters remain outside this task.
+Strict shared enforcement applies during normal operation when Redis is available; when Redis is unavailable, the configured failure policy applies. Fail-open and local fallback may weaken global guarantees. The production rate-limiting algorithm, identity mechanism, load balancer, and Redis-failure policy remain explicitly undecided. For the approved scaffold, Spring Boot 4.1.2, Spring Cloud 2025.1.4, and Gateway Server WebFlux are selected and verified. SENT-005 authorizes only the owner-written in-memory exercise and its tests; it does not select a production time-window algorithm or add Redis, HTTP filters, authentication, or other features.
 
 3. Completed Work
 
@@ -96,7 +96,7 @@ File contents and current Git status must be verified by Codex before reporting 
 6. Current Restrictions
 
 * Explicit initialization authorization covers the minimal gateway/ scaffold, Maven Wrapper, Gateway Server WebFlux, Actuator, and their dependency downloads. The owner will implement actual gateway behavior with mentoring.
-* SENT-004 authorizes a local test backend, mentoring/review of owner-written basic route configuration, and HTTP verification of forwarding, unknown paths, and backend unavailability. No additional dependencies, rate limiting, Redis, authentication, or custom filters are authorized for this task.
+* SENT-005 authorizes mentoring/review of owner-written in-memory admission logic and assistance creating and running sequential and concurrent tests. Java 21, ConcurrentHashMap, atomic per-key updates, independent client counts, and a five-admission cap without reset define this exercise. No Redis, HTTP integration/filters, authentication, additional features, or dependency changes are authorized by this checkpoint.
 * Do not implement future-phase features.
 * Automatic progress updates to this file and progress indicators in docs/PROJECT_ROADMAP.md, once it exists, have standing project-owner approval under AGENTS.md. Other file changes require explicit approval.
 * Application code, dependency changes, architectural decisions, scope or learning-objective changes, ticket closure, commits, pushes, and destructive operations still require explicit project-owner approval.
@@ -116,13 +116,13 @@ Documentation discrepancy: ARCHITECTURE.md retains its PROPOSED and approval-pen
 
 8. Next Micro-Task
 
-Next action: the owner explains how the Path and Method predicates combine, how the URI determines the backend, and why an unmatched path differs from an unavailable backend. Review the verified 200/404/500 results before requesting SENT-004 closure approval. No further implementation or ticket transition is authorized by this checkpoint.
+Next action for SENT-005: owner review of the passing sequential/concurrent results and the atomic admission explanation, followed by explicit ticket closure approval when ready. No new implementation or ticket transition is inferred. Tests read the existing package-visible map to check stored counts; the limiter was not modified. SENT-004 explanation/review and closure remain outstanding; they were not imposed as prerequisites for this authorized work.
 
 Official Spring documentation and release records establish the approved compatibility line; exact parent/BOM artifact downloads returned HTTP 200, and the resulting build and startup passed. Section 14 records sources and actual results. Constructor null-validation and independent compiler/runtime explanation remain unverified; they were not silently marked complete when the owner requested moving to the actual project.
 
 The roadmap records the owner-approved learning scope. Further behavior and open architectural decisions remain subject to the learning protocol and applicable owner authorization.
 
-Phase 0 and SENT-002 remain Completed. Phase 1 and the active SENT-004 are In Progress. SENT-003 closure is not recorded; moving to the explicitly owner-authorized SENT-004 does not close it. Routing and automated-test deliverables are not complete.
+Phase 0 and SENT-002 remain Completed. The recorded overall phase remains Phase 1 In Progress; SENT-005 is a limited rate-limiting/concurrency exercise without asserting completion of Phase 1 or a formal phase transition. SENT-003 and SENT-004 closure approvals remain unrecorded. Routing has historical execution evidence, and the standalone limiter now has passing sequential/concurrent checks; gateway-specific automated tests and deliverable acceptance remain outstanding.
 
 9. Learning Progress
 
@@ -346,4 +346,79 @@ The backend request log confirmed receipt of the forwarded GET /hello. Sentinel 
 
 Warnings and limits: HV000271 deprecation warnings were logged for routes, filters, and predicates; they did not prevent startup or forwarding. The old gateway's shutdown logged NoClassDefFoundError: ch/qos/logback/classic/spi/ThrowableProxy after the JAR rebuild; its root cause remains UNKNOWN. The old process exited and the new process started and served the checked requests successfully. These checks do not establish graceful shutdown or recovery guarantees. No automated tests, performance measurements, broader method/path coverage, or independent learning assessment were executed.
 
-SENT-004 remains In Progress pending the owner's explanation of predicates, URI, and the observed response differences, review of results, and explicit closure approval. SENT-003 formal closure remains unrecorded. Codex modified only CURRENT_STATE.md and PROJECT_ROADMAP.md during this verification; generated build output is under ignored gateway/target/. Existing changes, the owner route, and the standalone exercise were preserved. No files were staged, committed, or pushed.
+SENT-004 remained In Progress at this verification checkpoint, pending the owner's explanation of predicates, URI, and the observed response differences, review of results, and explicit closure approval. SENT-003 formal closure remained unrecorded. Codex modified only CURRENT_STATE.md and PROJECT_ROADMAP.md during this verification; generated build output is under ignored gateway/target/. Existing changes, the owner route, and the standalone exercise were preserved. No files were staged, committed, or pushed.
+
+17. SENT-005 Preparation Checkpoint — 2026-10-31
+
+DOCUMENTED: the owner authorized beginning the in-memory implementation exercise and will write the admission algorithm. Required behavior: independent per-client counters, first five requests admitted, subsequent requests rejected without increasing the count, ConcurrentHashMap with an atomic per-key update, and no time-window reset. This is a bounded local learning exercise, not the eventual distributed production policy.
+
+VERIFIED inspection: read AGENTS.md, CURRENT_STATE.md, DECISIONS.md, PROJECT_ROADMAP.md, gateway/pom.xml, and the existing exercise's RateLimiter, LocalRateLimiter, and GatewayService. Git was clean on main at HEAD df26a7c (Excercise and springboot setup) before progress updates. The old LocalRateLimiter returns true unconditionally. The gateway POM has Gateway and Actuator runtime starters but no test dependencies. No new limiter or tests are present in the inspected file inventory. No live remote state or push execution was checked.
+
+VERIFIED commands: the explicit Temurin JDK's java -version and javac -version both report 21.0.11 at /Library/Java/JavaVirtualMachines/temurin-21.jdk/Contents/Home. No application compilation, HTTP checks, or limiter tests were executed during preparation.
+
+PROPOSED location: excercise/sent-005-in-memory-rate-limiter/src, preserving the existing directory spelling and the SENT-003 exercise. Keep this exercise separate from production gateway/src/main/java. Reuse the existing interface contract boolean processRequest(String clientId); create a LocalRateLimiter implementation with a private per-instance ConcurrentHashMap<String, Integer> and a cap of five. Later add a plain Java test harness so sequential and concurrent checks can run without new dependencies. No exercise directory or source file has been created by Codex.
+
+Planned verification, not results: admit the first five requests and reject subsequent ones; verify rejected requests leave the count at five; prove different clients have independent allowances; synchronize concurrent requests against one shared limiter instance and verify exactly five admissions per client. Tests must collect worker outcomes/errors and finish before results are assessed. The owner will explain their approach, write the logic, and receive review before execution. Correctness, concurrency results, and learning proficiency remain UNKNOWN until verified.
+
+The Java 21 ConcurrentHashMap API documents compute() as an atomic invocation for a key: https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/ConcurrentHashMap.html#compute(K,java.util.function.BiFunction). This supports the proposed approach; thread-safe individual get/put operations alone do not make a compound admission decision atomic.
+
+Only CURRENT_STATE.md and roadmap progress information were updated during preparation. No source, dependencies, architectural decisions, staging, commits, or pushes were changed. Prior metadata discrepancies in DECISIONS.md and ARCHITECTURE.md remain as described above; formal SENT-003/SENT-004 closure is still unrecorded.
+
+18. SENT-005 First Implementation Review — 2026-10-31
+
+VERIFIED: the owner created RateLimiter.java and LocalRateLimiter.java directly under excercise/sent-005-in-memory-rate-limiter/. The interface matches the existing boolean processRequest(String clientId) contract. The implementation declares a ConcurrentHashMap<String, Integer>, reads with get(), rejects a count equal to five, and attempts requestMap.get(clientId)++ before returning true. No compute() call or tests are present.
+
+Executed javac --release 21 with the explicit Temurin 21.0.11 compiler against these two source files, directing any class output to a fresh /private/tmp/sentinel-sent005-review.* directory. VERIFIED result: exit 1; LocalRateLimiter.java:12: error: unexpected type; required: variable; found: value. Incrementing a method's return value is not valid Java.
+
+Additional VERIFIED source findings, not executed runtime outcomes: get() returns null for an absent client, which would be unboxed into int and throw NullPointerException if reached after compilation is corrected. Separate get/check/update steps do not provide the required atomic admission decision. No missing-client initialization is implemented; the map field is package-visible rather than private. Runtime behavior and concurrency correctness remain UNKNOWN because compilation failed; no limiter tests were run.
+
+Next action at this first-review checkpoint: the owner revises the method around compute(), handling the missing entry and preserving the count on rejection, with review before tests. No complete admission algorithm had been supplied at that point. Codex modified only progress documentation during that review; owner source was preserved. No dependency, architectural decision, staging, commit, or push changed.
+
+19. SENT-005 Explicitly Requested Compute Rewrite — 2026-10-31
+
+DOCUMENTED authorization: after several owner-written revisions and reviews, the owner explicitly requested, "rewrite compute for me". This authorizes the assisted algorithm rewrite under the learning protocol's explicit-request exception; no independent implementation achievement is inferred.
+
+VERIFIED changes: Codex updated only the method's compute() callback, added a request-local AtomicBoolean holder/import, and replaced the unsafe post-compute map read with the holder's result. An absent count is interpreted as zero. Counts at or above five remain unchanged and the call's admission flag remains false. Otherwise, the callback records admission and returns count + 1. Both the state update and admission decision occur inside the atomic per-key operation. The holder belongs to one method invocation, not shared limiter state. AtomicBoolean is part of the JDK; no dependency was introduced. The owner's class-level map declaration and interface were preserved; private visibility remains a recommended owner edit.
+
+VERIFIED compilation: executed the Temurin 21.0.11 javac with --release 21 against RateLimiter.java and LocalRateLimiter.java, with class output in a fresh /private/tmp/sentinel-sent005-review.* directory. Exit 0 with no diagnostics. Sequential and concurrent tests were not executed; runtime correctness remains unverified. No performance measurements or learning assessment were performed.
+
+Next action: explain the two callback paths and why its integer return differs from the outer method's boolean return, then create and run boundary, rejection-state, independent-client, and synchronized concurrent tests with mentoring. SENT-005 remains In Progress pending verification, understanding, review, and explicit closure approval. Files changed during this rewrite: LocalRateLimiter.java, CURRENT_STATE.md, and PROJECT_ROADMAP.md. No production gateway source, architectural decisions, dependencies, staging, commits, or pushes changed.
+
+20. SENT-005 First Sequential Harness Review — 2026-10-31
+
+DOCUMENTED owner run: javac LocalRateLimiterTest.java followed by java LocalRateLimiterTest.java printed True five times and False once. VERIFIED source: the harness uses an instance main method, loops from zero through five inclusive, and prints results for one client without assertions. It does not check the seventh request, another client, or stored counts. The limiter implementation is unchanged.
+
+VERIFIED commands: default java -version reports Temurin 25.0.3. Explicit Temurin 21.0.11 javac --release 21 compiled the interface, limiter, and test into a fresh /private/tmp/sentinel-sent005-test.* directory. Launching that compiled test with Java 21 failed with: Main method is not static in class LocalRateLimiterTest. This is a harness entry-point issue; no limiter behavior was executed by that Java 21 launch. The owner's printed output is a demonstration, not evidence that all required tests passed.
+
+Next at this first-harness review checkpoint: owner fixes main and adds sequential assertions before concurrency tests. Java static entry points and AssertionError must be explained before use; concurrency tools will be introduced only with explanations. No limiter source or test source changed by Codex during that review. Only progress documents updated; no dependency, integration, staging, commit, or push changes. Owner-generated .class files are present alongside exercise source and were left untouched.
+
+21. SENT-005 Sequential and Concurrent Verification — 2026-10-31
+
+DOCUMENTED authorization: the owner explicitly requested, "write tests. i am not sdet". Codex replaced LocalRateLimiterTest.java with a standalone JDK-only harness. ExecutorService (worker pool), CountDownLatch (starting gate), Future (task outcomes/exceptions), and AssertionError (automatic failure) were explained before use. Outcomes are counted on the main thread; no AtomicInteger or new dependency is needed. This is assisted testing, not owner-authored test code or independently assessed learning.
+
+VERIFIED: the sequential test checks each of A's first five admissions and stored counts, sixth/seventh rejections with the count staying at five, and B's independent five admissions and sixth rejection using the same limiter. Concurrent tests use 16 worker threads, a gate releasing the first 16 runnable tasks together, interleaved clients, timed waits, collected Future results that propagate worker errors, and executor cleanup in finally. Each concurrent scenario uses a fresh limiter; the multiple-client scenario shares that limiter across A, B, and C.
+
+Executed from the repository root with Temurin 21.0.11:
+
+```sh
+sent005_test_classes=$(mktemp -d /private/tmp/sentinel-sent005-tests.XXXXXX)
+/Library/Java/JavaVirtualMachines/temurin-21.jdk/Contents/Home/bin/javac --release 21 -d "$sent005_test_classes" excercise/sent-005-in-memory-rate-limiter/RateLimiter.java excercise/sent-005-in-memory-rate-limiter/LocalRateLimiter.java excercise/sent-005-in-memory-rate-limiter/LocalRateLimiterTest.java
+/Library/Java/JavaVirtualMachines/temurin-21.jdk/Contents/Home/bin/java -cp "$sent005_test_classes" LocalRateLimiterTest
+```
+
+VERIFIED: compilation and execution exited 0. Observed output:
+
+```text
+PASS sequential: A allowed=5 rejected=2 count=5; B allowed=5 rejected=1 count=5
+PASS concurrent same client: A allowed=5 rejected=95 count=5
+PASS concurrent independent clients: A allowed=5 rejected=95 count=5
+PASS concurrent independent clients: B allowed=5 rejected=95 count=5
+PASS concurrent independent clients: C allowed=5 rejected=95 count=5
+ALL TESTS PASSED
+```
+
+Atomicity explanation: compute() executes the check and counter update atomically for the client key. With count four, one request stores five and is admitted; the next operation on that client sees five, preserves it, and rejects. The admission holder is local to one invocation and records the result inside compute(), avoiding a separate post-update map read. Correctness assumes callers do not mutate the package-visible map directly; the tests only read it after relevant operations complete.
+
+Limitations: per-limiter-instance/process state, no shared distributed limit, no reset or expiration, no client-entry eviction, loss of state on process restart, and no defined identity validation policy. Null/invalid client behavior, persistence, HTTP integration, and performance were not tested. These are bounded correctness checks, not exhaustive coverage of thread schedules or a benchmark.
+
+Hash comparison VERIFIED that LocalRateLimiter.java, RateLimiter.java, gateway configuration/entry point, and the Git index stayed unchanged during this test task. Only LocalRateLimiterTest.java and the two progress documents were changed by Codex. Class output went to /private/tmp; existing owner-generated class files were untouched. No dependencies, architecture, staging, commits, or pushes changed. SENT-005 remains In Progress pending owner review, understanding, and explicit closure approval.

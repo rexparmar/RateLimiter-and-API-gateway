@@ -1,6 +1,6 @@
 # Sentinel — Persistent Project Roadmap
 
-Last Updated: 2026-10-29
+Last Updated: 2026-10-31
 
 ## Objective and planning horizon
 
@@ -13,10 +13,10 @@ The DOCUMENTED, project-owner-approved plan targets 12 weeks at approximately 8�
 | Item | Current value | Evidence |
 | --- | --- | --- |
 | Current phase | Phase 1 — Java and Gateway Foundations: In Progress | DOCUMENTED: owner-authorized SENT-003 scaffold; VERIFIED: Java 21 build/start and HTTP health check |
-| Active ticket | SENT-004 — Basic HTTP Routing | DOCUMENTED: explicit owner instruction; SENT-003 formal closure remains unrecorded |
-| Ticket status | In Progress; owner-written route reviewed and HTTP checks executed; owner review/closure pending | VERIFIED: /hello 200, /unknown 404, backend unavailable 500, restored backend 200; see CURRENT_STATE.md section 16 |
+| Active ticket | SENT-005 — In-Memory Rate Limiter | DOCUMENTED: explicit owner instruction, 2026-10-31; SENT-003/SENT-004 closure remains unrecorded |
+| Ticket status | In Progress; sequential/concurrent tests passed; owner review and closure pending | VERIFIED: Java 21 compilation/run exited 0; 100 concurrent requests yielded 5 admissions and 95 rejections per client; see CURRENT_STATE.md section 21 |
 | Latest approved milestones | SENT-000.7, SENT-000.8, SENT-001, and SENT-002 — Completed and approved | DOCUMENTED: explicit project-owner closure approval |
-| Implementation | Minimal framework scaffold plus owner-written GET /hello route; standalone exercise preserved | VERIFIED: executable Spring Boot JAR, previous health check, and current basic forwarding checks; no rate limiting, Redis, authentication, or custom filters |
+| Implementation | Gateway scaffold and GET /hello route; separate in-memory limiter exercise and test harness | VERIFIED: historical gateway checks and current standalone sequential/concurrent tests. No limiter integration into the gateway, Redis, authentication, or custom filters. |
 | Foundation work | Context-management instructions, current-state documentation, and decision log exist and contain content | VERIFIED: inspected repository files |
 
 The topics and implementation deliverables below describe planned work. Their inclusion does not mean a feature is implemented, a concept is mastered, or a test has passed. Phase 0's three deliverables are Completed following artifact and consistency review and the owner's requirements and high-level architecture approval. For the initial scaffold, Boot 4.1.2, Cloud 2025.1.4, and Gateway Server WebFlux 5.0.4 are approved and verified. Failure policy and other unselected implementation details remain open. Phase 1 is In Progress with the scaffold and one HTTP-verified forwarding route; detailed evidence is in [CURRENT_STATE.md](CURRENT_STATE.md), sections 12–16.
@@ -64,7 +64,7 @@ Known metadata discrepancy: ARCHITECTURE.md still carries its original PROPOSED 
 
 Status: In Progress
 
-VERIFIED partial progress: the owner-written standalone exercise compiled and ran with Java 21.0.11. Following explicit scaffold/dependency approval, gateway/ builds through Maven Wrapper and starts Netty on port 8080; the initialization GET /actuator/health returned HTTP 200 and exactly {"status":"UP"}. Framework versions are Boot 4.1.2, Cloud BOM 2025.1.4, and Gateway Server WebFlux 5.0.4. In SENT-004 the owner wrote the first route; forwarding, unmatched-path, backend-outage, and restoration checks were executed. No automated tests were implemented. SENT-003 closure remains unrecorded; SENT-004 remains In Progress pending owner review, explanation, and closure approval.
+VERIFIED partial progress: the owner-written standalone exercise compiled and ran with Java 21.0.11. Following explicit scaffold/dependency approval, gateway/ builds through Maven Wrapper and starts Netty on port 8080; the initialization GET /actuator/health returned HTTP 200 and exactly {"status":"UP"}. Framework versions are Boot 4.1.2, Cloud BOM 2025.1.4, and Gateway Server WebFlux 5.0.4. In SENT-004 the owner wrote the first route; forwarding, unmatched-path, backend-outage, and restoration checks were executed. No automated gateway tests were implemented; SENT-005's separate JDK-only limiter harness now has passing sequential/concurrent checks. SENT-003 closure remains unrecorded; SENT-004 remains In Progress pending owner review, explanation, and closure approval.
 
 Topics:
 
@@ -89,6 +89,8 @@ Topics:
 
 Status: Not Started
 
+SENT-005 authorizes a preparatory local concurrency exercise while the recorded overall phase remains Phase 1. Its no-reset five-admission cap now has passing sequential/concurrent checks. This does not select a production time-window algorithm, complete these phase deliverables, or imply a formal phase transition; owner acceptance and broader phase work remain outstanding. See CURRENT_STATE.md section 21.
+
 Topics:
 
 - Fixed window
@@ -103,9 +105,9 @@ Topics:
 
 | Planned deliverable | Status | Completion evidence |
 | --- | --- | --- |
-| Correct local rate limiter | Not Started | Not yet recorded |
-| Unit tests for edge cases | Not Started | Not yet recorded |
-| Concurrency tests | Not Started | Not yet recorded |
+| Correct local rate limiter | In Progress | Preparatory no-reset exercise passed admission-boundary and independent-client checks; production time-based behavior and owner acceptance remain outstanding. |
+| Unit tests for edge cases | In Progress | JDK-only harness passed first-five/sixth/seventh checks and confirmed rejected requests preserve stored counts. Broader cases remain outside this checkpoint. |
+| Concurrency tests | In Progress | 16-worker gated tests passed: 100 requests for one client gave 5 allowed/95 rejected; interleaved A/B/C requests independently gave the same counts. Owner acceptance pending. |
 
 ## Phase 3 — Distributed Rate Limiting (Weeks 6–7)
 
@@ -222,4 +224,4 @@ Other DOCUMENTED stack choices in [CURRENT_STATE.md](CURRENT_STATE.md), includin
 
 ## Next micro-task
 
-SENT-004 remains In Progress. The owner will explain the predicate/URI behavior and the observed 200/404/500 responses, then review the results before approving closure. SENT-003 formal closure remains unrecorded. No new feature or ticket transition is inferred. Detailed verification evidence is in CURRENT_STATE.md section 16.
+SENT-005 remains active pending owner review of the passing tests, the compute() atomicity explanation, and explicit closure approval. At the owner's request Codex wrote the tests; the limiter was preserved. No new integration, phase transition, independent proficiency claim, or ticket closure is inferred. SENT-003 and SENT-004 closure remains unrecorded. Verified results and limitations are in CURRENT_STATE.md section 21.
