@@ -1,6 +1,6 @@
 # Sentinel — Persistent Project Roadmap
 
-Last Updated: 2026-10-26
+Last Updated: 2026-10-29
 
 ## Objective and planning horizon
 
@@ -12,14 +12,14 @@ The DOCUMENTED, project-owner-approved plan targets 12 weeks at approximately 8�
 
 | Item | Current value | Evidence |
 | --- | --- | --- |
-| Active phase | Phase 0 — Engineering Foundations | DOCUMENTED: current project state and owner instruction |
-| Active ticket | SENT-002 — High-Level System Architecture | DOCUMENTED: explicit owner instruction |
-| Ticket status | In Progress; proposed high-level architecture drafted, owner approval pending | VERIFIED: ARCHITECTURE.md; DOCUMENTED: owner-authorized drafting |
-| Latest approved milestones | SENT-000.7, SENT-000.8, and SENT-001 — Completed and approved | DOCUMENTED: explicit project-owner closure approval |
-| Implementation | No application code or build configuration present at the SENT-000.8 inspection | VERIFIED: repository file inventory |
+| Current phase | Phase 1 — Java and Gateway Foundations: In Progress | DOCUMENTED: owner-authorized SENT-003 scaffold; VERIFIED: Java 21 build/start and HTTP health check |
+| Active ticket | SENT-004 — Basic HTTP Routing | DOCUMENTED: explicit owner instruction; SENT-003 formal closure remains unrecorded |
+| Ticket status | In Progress; owner-written route reviewed and HTTP checks executed; owner review/closure pending | VERIFIED: /hello 200, /unknown 404, backend unavailable 500, restored backend 200; see CURRENT_STATE.md section 16 |
+| Latest approved milestones | SENT-000.7, SENT-000.8, SENT-001, and SENT-002 — Completed and approved | DOCUMENTED: explicit project-owner closure approval |
+| Implementation | Minimal framework scaffold plus owner-written GET /hello route; standalone exercise preserved | VERIFIED: executable Spring Boot JAR, previous health check, and current basic forwarding checks; no rate limiting, Redis, authentication, or custom filters |
 | Foundation work | Context-management instructions, current-state documentation, and decision log exist and contain content | VERIFIED: inspected repository files |
 
-The topics and implementation deliverables below describe planned work. Their inclusion does not mean a feature is implemented, a concept is mastered, or a test has passed. The requirements-document milestone is Completed: [REQUIREMENTS.md](REQUIREMENTS.md) records the owner-approved requirements direction with the normal-operation and Redis-unavailable clarification. No failure policy has been selected. The architecture diagram and system boundaries are In Progress: [ARCHITECTURE.md](ARCHITECTURE.md) contains a proposed draft awaiting owner approval.
+The topics and implementation deliverables below describe planned work. Their inclusion does not mean a feature is implemented, a concept is mastered, or a test has passed. Phase 0's three deliverables are Completed following artifact and consistency review and the owner's requirements and high-level architecture approval. For the initial scaffold, Boot 4.1.2, Cloud 2025.1.4, and Gateway Server WebFlux 5.0.4 are approved and verified. Failure policy and other unselected implementation details remain open. Phase 1 is In Progress with the scaffold and one HTTP-verified forwarding route; detailed evidence is in [CURRENT_STATE.md](CURRENT_STATE.md), sections 12–16.
 
 Evidence labels follow [AGENTS.md](../AGENTS.md): VERIFIED means confirmed by inspection or executed commands; DOCUMENTED means recorded in project documentation; PROPOSED means suggested but not approved; UNKNOWN means evidence is insufficient. A missing execution result is not a passing test.
 
@@ -27,8 +27,8 @@ Evidence labels follow [AGENTS.md](../AGENTS.md): VERIFIED means confirmed by in
 
 | Phase | Target weeks | Status |
 | --- | --- | --- |
-| 0 — Engineering Foundations | 1 | In Progress |
-| 1 — Java and Gateway Foundations | 2–3 | Not Started |
+| 0 — Engineering Foundations | 1 | Completed |
+| 1 — Java and Gateway Foundations | 2–3 | In Progress |
 | 2 — Rate Limiting and Concurrency | 4–5 | Not Started |
 | 3 — Distributed Rate Limiting | 6–7 | Not Started |
 | 4 — Reliability Engineering | 8–9 | Not Started |
@@ -37,7 +37,7 @@ Evidence labels follow [AGENTS.md](../AGENTS.md): VERIFIED means confirmed by in
 
 ## Phase 0 — Engineering Foundations (Week 1)
 
-Status: In Progress
+Status: Completed
 
 Topics:
 
@@ -53,12 +53,18 @@ Topics:
 | Planned deliverable | Status | Completion evidence |
 | --- | --- | --- |
 | Requirements document | Completed | [REQUIREMENTS.md](REQUIREMENTS.md), all 16 requirements and operating-mode clarification; explicit owner approval of SENT-001 closure, 2026-10-23 |
-| Initial architecture diagram | In Progress | Proposed Mermaid diagram in [ARCHITECTURE.md](ARCHITECTURE.md); owner acceptance pending |
-| Approved system boundaries | In Progress | Proposed component and trust boundaries in [ARCHITECTURE.md](ARCHITECTURE.md); approval pending |
+| Initial architecture diagram | Completed | Mermaid source in [ARCHITECTURE.md](ARCHITECTURE.md), section 2; owner approval of high-level direction and SENT-002 closure, 2026-10-26. Rendering not independently verified. |
+| Approved system boundaries | Completed | Component/trust/state boundaries in [ARCHITECTURE.md](ARCHITECTURE.md), sections 4–8; high-level direction approved by the owner, 2026-10-26. Implementation details remain open. |
+
+Readiness basis: the listed deliverables are present and have documented owner approval; the content review found no contradiction with REQUIREMENTS.md. No separate Phase 0 acceptance checklist exists. This is completion of the documented foundations deliverables, not a claim of independent proficiency or implemented correctness.
+
+Known metadata discrepancy: ARCHITECTURE.md still carries its original PROPOSED and approval-pending text. The later owner approval and SENT-002 closure are recorded in this roadmap and CURRENT_STATE.md; the architectural source was left unchanged during this progress review.
 
 ## Phase 1 — Java and Gateway Foundations (Weeks 2–3)
 
-Status: Not Started
+Status: In Progress
+
+VERIFIED partial progress: the owner-written standalone exercise compiled and ran with Java 21.0.11. Following explicit scaffold/dependency approval, gateway/ builds through Maven Wrapper and starts Netty on port 8080; the initialization GET /actuator/health returned HTTP 200 and exactly {"status":"UP"}. Framework versions are Boot 4.1.2, Cloud BOM 2025.1.4, and Gateway Server WebFlux 5.0.4. In SENT-004 the owner wrote the first route; forwarding, unmatched-path, backend-outage, and restoration checks were executed. No automated tests were implemented. SENT-003 closure remains unrecorded; SENT-004 remains In Progress pending owner review, explanation, and closure approval.
 
 Topics:
 
@@ -75,8 +81,8 @@ Topics:
 
 | Planned deliverable | Status | Completion evidence |
 | --- | --- | --- |
-| Minimal Spring Boot application | Not Started | Not yet recorded |
-| Working request forwarding | Not Started | Not yet recorded |
+| Minimal Spring Boot application | In Progress | Scaffold built and started; HTTP 200 with {"status":"UP"} verified on 2026-10-29. Owner acceptance of this deliverable pending. |
+| Working request forwarding | In Progress | Owner-written GET /hello route reviewed and verified: 200 with backend JSON; /unknown 404; backend down 500; backend restored 200. Owner acceptance and SENT-004 closure pending. |
 | Initial automated tests | Not Started | Not yet recorded |
 
 ## Phase 2 — Rate Limiting and Concurrency (Weeks 4–5)
@@ -193,7 +199,7 @@ Topics:
 [DECISIONS.md](DECISIONS.md) remains the source of architectural decisions. This roadmap records the agreed learning sequence and deliverables; it selects no additional algorithms, dependencies, versions, or failure policies.
 
 - DEC-001: Java 21 remains the primary language.
-- DEC-002: Spring Boot and Spring Cloud Gateway remain the framework direction. Compatible versions and the Gateway variant must be resolved before application initialization.
+- DEC-002: Spring Boot and Spring Cloud Gateway remain the framework direction. The initialization gate is satisfied by explicit owner approval and verified Boot 4.1.2 / Cloud 2025.1.4 / Server WebFlux 5.0.4 setup; CURRENT_STATE.md section 14 records evidence. DECISIONS.md retains its historical open-question wording and was not edited during initialization.
 - DEC-003: Redis is approved in principle for shared state. Key structure, expiration, atomic token updates, and Redis-failure behavior remain open for their relevant phases. Studying algorithms or Lua scripts does not resolve these decisions.
 - DEC-004: The owner implements core functionality independently. Work proceeds one micro-task at a time with explanation, review, testing, demonstrated understanding, and owner-approved closure.
 - DEC-005: Repository documentation preserves context. Automatic progress updates operate under the standing owner authorization in AGENTS.md.
@@ -216,4 +222,4 @@ Other DOCUMENTED stack choices in [CURRENT_STATE.md](CURRENT_STATE.md), includin
 
 ## Next micro-task
 
-Review the proposed high-level architecture and Mermaid diagram with the project owner under SENT-002. Architecture acceptance and ticket closure remain pending. Phase 0 remains In Progress; architectural decisions and subsequent ticket or phase transitions require project-owner approval.
+SENT-004 remains In Progress. The owner will explain the predicate/URI behavior and the observed 200/404/500 responses, then review the results before approving closure. SENT-003 formal closure remains unrecorded. No new feature or ticket transition is inferred. Detailed verification evidence is in CURRENT_STATE.md section 16.
