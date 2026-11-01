@@ -12,10 +12,10 @@ The DOCUMENTED, project-owner-approved plan targets 12 weeks at approximately 8�
 
 | Item | Current value | Evidence |
 | --- | --- | --- |
-| Current phase | Phase 1 — Java and Gateway Foundations: In Progress | DOCUMENTED: owner-authorized SENT-003 scaffold; VERIFIED: Java 21 build/start and HTTP health check |
-| Active ticket | SENT-007 — Repeatable Gateway Regression Tests | DOCUMENTED: explicit owner instruction, 2026-11-01; SENT-003/SENT-004 closure remains unrecorded |
-| Ticket status | In Progress; harness implemented and first full run passed; owner review/closure pending | VERIFIED: Java 21 build, sequential/restart 5×200 then 2×429, concurrent 5×200/95×429, five backend receipts per scenario, health UP; see CURRENT_STATE.md section 26 |
-| Latest approved milestones | SENT-000.7, SENT-000.8, SENT-001, SENT-002, SENT-005, and SENT-006 — Completed and approved | DOCUMENTED: owner closure approval; SENT-005/SENT-006 accepted as assisted work with verified execution evidence |
+| Current phase | Phase 2 — Rate Limiting and Concurrency: In Progress | DOCUMENTED: owner-authorized SENT-009; Phase 1 not formally closed |
+| Active ticket | SENT-009 — Per-Client Identity for Sentinel | DOCUMENTED: explicit owner instruction, 2026-11-01 |
+| Ticket status | In Progress; direct-peer IP extraction and missing-address policy pending | VERIFIED: fixed `demo-client` key and nullable Spring remote-address API inspected; no SENT-009 code/test change yet |
+| Latest approved milestones | SENT-000.7, SENT-000.8, SENT-001, SENT-002, SENT-005, SENT-006, SENT-007, and SENT-008 — Completed and approved | DOCUMENTED: owner closure approvals; SENT-008 verification is in CURRENT_STATE.md section 27 |
 | Implementation | Existing gateway behavior preserved; standard-library regression harness added under gateway/tests/ | VERIFIED: one documented command builds with Java 21/Maven Wrapper, runs isolated HTTP scenarios with an owned backend, and cleans up test processes. No new dependencies or production changes. |
 | Foundation work | Context-management instructions, current-state documentation, and decision log exist and contain content | VERIFIED: inspected repository files |
 
@@ -29,7 +29,7 @@ Evidence labels follow [AGENTS.md](../AGENTS.md): VERIFIED means confirmed by in
 | --- | --- | --- |
 | 0 — Engineering Foundations | 1 | Completed |
 | 1 — Java and Gateway Foundations | 2–3 | In Progress |
-| 2 — Rate Limiting and Concurrency | 4–5 | Not Started |
+| 2 — Rate Limiting and Concurrency | 4–5 | In Progress |
 | 3 — Distributed Rate Limiting | 6–7 | Not Started |
 | 4 — Reliability Engineering | 8–9 | Not Started |
 | 5 — Observability and Performance | 10–11 | Not Started |
@@ -83,13 +83,13 @@ Topics:
 | --- | --- | --- |
 | Minimal Spring Boot application | In Progress | Scaffold built and started; HTTP 200 with {"status":"UP"} verified on 2026-10-29. Owner acceptance of this deliverable pending. |
 | Working request forwarding | In Progress | Owner-written GET /hello route reviewed and verified: 200 with backend JSON; /unknown 404; backend down 500; backend restored 200. Owner acceptance and SENT-004 closure pending. |
-| Initial automated tests | In Progress | SENT-007 harness passed sequential/restart/concurrent HTTP and backend-count checks with Java 21/Maven Wrapper; documented one-command workflow. Owner review and acceptance pending. |
+| Initial automated tests | Completed | SENT-007’s harness was approved; SENT-008 adapted it for deterministic token-bucket and HTTP refill behavior and passed owner-approved closure. |
 
 ## Phase 2 — Rate Limiting and Concurrency (Weeks 4–5)
 
-Status: Not Started
+Status: In Progress
 
-SENT-005 authorizes a preparatory local concurrency exercise while the recorded overall phase remains Phase 1. Its no-reset five-admission cap now has passing sequential/concurrent checks. This does not select a production time-window algorithm, complete these phase deliverables, or imply a formal phase transition; owner acceptance and broader phase work remain outstanding. See CURRENT_STATE.md section 21.
+SENT-005’s preparatory permanent allowance has verified execution evidence. SENT-008’s approved local token bucket implements capacity five, refill one token/second, injected monotonic time, fractional credit, and atomic per-client state; deterministic and isolated gateway regression suites pass. SENT-009 now addresses direct-peer IP identity while preserving that algorithm. This Phase 2 work does not assert Phase 1 completion. No Redis or distributed implementation is selected. See CURRENT_STATE.md sections 27–28.
 
 Topics:
 
@@ -105,9 +105,9 @@ Topics:
 
 | Planned deliverable | Status | Completion evidence |
 | --- | --- | --- |
-| Correct local rate limiter | In Progress | Preparatory no-reset exercise passed admission-boundary and independent-client checks; production time-based behavior and owner acceptance remain outstanding. |
-| Unit tests for edge cases | In Progress | JDK-only harness passed first-five/sixth/seventh checks and confirmed rejected requests preserve stored counts. Broader cases remain outside this checkpoint. |
-| Concurrency tests | In Progress | 16-worker gated tests passed: 100 requests for one client gave 5 allowed/95 rejected; interleaved A/B/C requests independently gave the same counts. Owner acceptance pending. |
+| Correct local rate limiter | Completed | SENT-008 fixed-point token bucket and gateway integration passed deterministic and HTTP regression verification; owner approved closure, 2026-11-01. |
+| Unit tests for edge cases | Completed | SENT-008 controlled-clock checks passed initial capacity, one-second/fractional refill, capacity cap, independence, and rejected-credit preservation; owner approved closure. |
+| Concurrency tests | Completed | SENT-008 frozen-time Java check and isolated HTTP regression each produced 5 allowed/95 rejected from 100 same-client requests; owner approved closure. |
 
 ## Phase 3 — Distributed Rate Limiting (Weeks 6–7)
 
@@ -224,4 +224,4 @@ Other DOCUMENTED stack choices in [CURRENT_STATE.md](CURRENT_STATE.md), includin
 
 ## Next micro-task
 
-SENT-007 is active. Review test_sequential() and its separate backend receipt assertion with the owner, then the concurrent gate/process isolation as needed. The harness already passed its first complete run; repeat only if changes or unresolved concerns justify it. Closure requires owner approval. Phase 1 remains In Progress; no phase/ticket advancement or independent proficiency is inferred. See CURRENT_STATE.md section 26 and gateway/tests/README.md for the runnable command.
+SENT-009 is active. The smallest next action is to choose the explicit missing-remote-address response, then let the owner replace the fixed `demo-client` key with the resolved directly connected peer IP. Header-derived identity remains forbidden. See CURRENT_STATE.md section 28.

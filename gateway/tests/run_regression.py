@@ -123,6 +123,28 @@ def build(env, run_dir):
     print("PASS Maven Wrapper package", flush=True)
 
 
+def test_token_bucket(java, run_dir):
+    classpath = os.pathsep.join([
+        str(GATEWAY / "target/test-classes"),
+        str(GATEWAY / "target/classes"),
+    ])
+    command = [java, "-cp", classpath,
+               "com.sentinel.gateway.ratelimit.LocalRateLimiterDeterministicChecks"]
+    result = subprocess.run(command, cwd=GATEWAY, text=True,
+                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                            timeout=60)
+    (run_dir / "token-bucket-tests.log").write_text(result.stdout)
+    check(result.returncode == 0,
+          "Deterministic token-bucket tests failed; inspect "
+          + str(run_dir / "token-bucket-tests.log"))
+    passed = [line.removeprefix("PASS: ") for line in result.stdout.splitlines()
+              if line.startswith("PASS: ")]
+    check(len(passed) == 7,
+          "Expected seven deterministic token-bucket checks; got " + repr(passed))
+    print("PASS deterministic token bucket: " + ", ".join(passed), flush=True)
+    return passed
+
+
 def write_test_config(run_dir, backend):
     # Copy the built app's whole configuration so route predicates/filters stay intact.
     with zipfile.ZipFile(JAR) as jar:
@@ -178,10 +200,11 @@ def running_gateway(java, env, config, run_dir, scenario):
             check(process.poll() is not None, "Test-owned gateway did not stop")
 
 
-def check_backend(backend, before):
+def backend_receipts_since(backend, before):
     receipts = backend.snapshot()[before:]
-    check(receipts == ["/hello"] * 5, "Expected five backend receipts; got " + repr(receipts))
-    return len(receipts)
+    check(all(path == "/hello" for path in receipts),
+          "Backend received an unexpected path: " + repr(receipts))
+    return receipts
 
 
 def test_sequential(url, backend):
@@ -192,8 +215,34 @@ def test_sequential(url, backend):
           "Sequential statuses were " + repr(statuses))
     for status, body in responses[:5]:
         check(json.loads(body) == HELLO, "Admitted request did not return backend JSON: " + body)
+
+    initial_receipts = backend_receipts_since(backend, before)
+    check(len(initial_receipts) == 5,
+          "Expected five backend receipts before refill; got " + repr(initial_receipts))
+
+    refill_deadline = time.monotonic() + 3
+    refill_attempts = 0
+    while True:
+        refill_attempts += 1
+        refill_status, refill_body = request(url + "/hello")
+        if refill_status == 200:
+            check(json.loads(refill_body) == HELLO,
+                  "Refilled request did not return backend JSON: " + refill_body)
+            break
+        check(refill_status == 429,
+              "Expected 429 while waiting for refill; got {}: {}"
+              .format(refill_status, refill_body))
+        check(time.monotonic() < refill_deadline,
+              "No token was replenished before the bounded deadline")
+        time.sleep(0.02)
+
     check_health(url)
-    return {"statuses": statuses, "backend_receipts": check_backend(backend, before), "health": "UP"}
+    final_receipts = backend_receipts_since(backend, before)
+    check(len(final_receipts) == 6,
+          "Expected one additional backend receipt after refill; got " + repr(final_receipts))
+    return {"statuses": statuses, "backend_receipts_before_refill": 5,
+            "refill_status": refill_status, "refill_attempts": refill_attempts,
+            "total_backend_receipts": len(final_receipts), "health": "UP"}
 
 
 def test_concurrent(url, backend):
@@ -215,17 +264,34 @@ def test_concurrent(url, backend):
             for _ in range(workers):
                 check(ready.acquire(timeout=max(0, deadline - time.monotonic())),
                       "Workers did not reach the start gate")
-        finally:
-            start.set()  # Also release workers if readiness fails.
+            started = time.monotonic_ns()
+        except Exception:
+            start.set()  # Release blocked workers before propagating setup failure.
+            raise
+        start.set()
         responses = [future.result(timeout=20) for future in futures]
+        elapsed_nanos = time.monotonic_ns() - started
     counts = Counter(status for status, body in responses)
-    check(counts == {200: 5, 429: 95}, "Concurrent statuses were " + repr(dict(counts)))
+    check(set(counts).issubset({200, 429}),
+          "Concurrent statuses were " + repr(dict(counts)))
+    maximum_admissions = 5 + elapsed_nanos // 1_000_000_000
+    check(5 <= counts[200] <= maximum_admissions,
+          "Concurrent admissions exceeded the token-bucket bound: {} allowed in {} ns"
+          .format(counts[200], elapsed_nanos))
+    check(counts[200] + counts[429] == 100,
+          "Concurrent response count was " + repr(dict(counts)))
     for status, body in responses:
         if status == 200:
             check(json.loads(body) == HELLO, "Concurrent admission did not return backend JSON")
+    receipts = backend_receipts_since(backend, before)
+    check(len(receipts) == counts[200],
+          "Backend receipts {} did not match {} admissions"
+          .format(len(receipts), counts[200]))
     check_health(url)
     return {"requests": 100, "workers": workers, "allowed": counts[200],
-            "rejected": counts[429], "backend_receipts": check_backend(backend, before), "health": "UP"}
+            "rejected": counts[429], "elapsed_nanos": elapsed_nanos,
+            "maximum_admissions": maximum_admissions,
+            "backend_receipts": len(receipts), "health": "UP"}
 
 
 def main():
@@ -239,6 +305,7 @@ def main():
         summary["java"] = version
         print("Using " + version, flush=True)
         build(env, run_dir)
+        summary["deterministic_token_bucket"] = test_token_bucket(java, run_dir)
         with Backend(run_dir / "backend.jsonl") as backend:
             config = write_test_config(run_dir, backend)
             # Each context starts/stops its own JVM; the demo server is never touched.
