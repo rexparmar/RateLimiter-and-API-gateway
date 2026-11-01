@@ -13,10 +13,10 @@ The DOCUMENTED, project-owner-approved plan targets 12 weeks at approximately 8�
 | Item | Current value | Evidence |
 | --- | --- | --- |
 | Current phase | Phase 1 — Java and Gateway Foundations: In Progress | DOCUMENTED: owner-authorized SENT-003 scaffold; VERIFIED: Java 21 build/start and HTTP health check |
-| Active ticket | None — SENT-006 closed; next ticket awaits owner approval | DOCUMENTED: conditional closure instruction satisfied, 2026-11-01; SENT-003/SENT-004 closure remains unrecorded |
-| Ticket status | Completed and approved (SENT-006) | VERIFIED: existing build, HTTP, backend-exclusion, health, and restart evidence covers all criteria; no tests repeated; see CURRENT_STATE.md sections 24–25 |
+| Active ticket | SENT-007 — Repeatable Gateway Regression Tests | DOCUMENTED: explicit owner instruction, 2026-11-01; SENT-003/SENT-004 closure remains unrecorded |
+| Ticket status | In Progress; harness implemented and first full run passed; owner review/closure pending | VERIFIED: Java 21 build, sequential/restart 5×200 then 2×429, concurrent 5×200/95×429, five backend receipts per scenario, health UP; see CURRENT_STATE.md section 26 |
 | Latest approved milestones | SENT-000.7, SENT-000.8, SENT-001, SENT-002, SENT-005, and SENT-006 — Completed and approved | DOCUMENTED: owner closure approval; SENT-005/SENT-006 accepted as assisted work with verified execution evidence |
-| Implementation | Hello-route filter attached to one injected local limiter using fixed demo-client; standalone exercise preserved | VERIFIED: packaged application passed local HTTP admission/rejection, backend-receipt, health, and restart-reset checks. No Redis, expiration, authentication, or new dependencies. |
+| Implementation | Existing gateway behavior preserved; standard-library regression harness added under gateway/tests/ | VERIFIED: one documented command builds with Java 21/Maven Wrapper, runs isolated HTTP scenarios with an owned backend, and cleans up test processes. No new dependencies or production changes. |
 | Foundation work | Context-management instructions, current-state documentation, and decision log exist and contain content | VERIFIED: inspected repository files |
 
 The topics and implementation deliverables below describe planned work. Their inclusion does not mean a feature is implemented, a concept is mastered, or a test has passed. Phase 0's three deliverables are Completed following artifact and consistency review and the owner's requirements and high-level architecture approval. For the initial scaffold, Boot 4.1.2, Cloud 2025.1.4, and Gateway Server WebFlux 5.0.4 are approved and verified. Failure policy and other unselected implementation details remain open. Phase 1 is In Progress with the scaffold and one HTTP-verified forwarding route; detailed evidence is in [CURRENT_STATE.md](CURRENT_STATE.md), sections 12–16.
@@ -64,7 +64,7 @@ Known metadata discrepancy: ARCHITECTURE.md still carries its original PROPOSED 
 
 Status: In Progress
 
-VERIFIED partial progress: the owner-written standalone exercise compiled and ran with Java 21.0.11. Following explicit scaffold/dependency approval, gateway/ builds through Maven Wrapper and starts Netty on port 8080; the initialization GET /actuator/health returned HTTP 200 and exactly {"status":"UP"}. Framework versions are Boot 4.1.2, Cloud BOM 2025.1.4, and Gateway Server WebFlux 5.0.4. In SENT-004 the owner wrote the first route; forwarding, unmatched-path, backend-outage, and restoration checks were executed. No automated gateway tests were implemented; SENT-005's separate JDK-only limiter harness now has passing sequential/concurrent checks. SENT-003 closure remains unrecorded; SENT-004 remains In Progress pending owner review, explanation, and closure approval.
+VERIFIED partial progress: the owner-written standalone exercise compiled and ran with Java 21.0.11. The gateway scaffold and initial health/forwarding checks are recorded in CURRENT_STATE.md. Versions remain Boot 4.1.2, Cloud BOM 2025.1.4, and Gateway Server WebFlux 5.0.4. SENT-005's standalone checks and SENT-006 integration are approved. SENT-007 now adds a passing automated HTTP regression harness for sequential/concurrent admission, backend exclusion, health, and restart reset; it is an external JDK/Python workflow, not a Maven Surefire suite. Owner review/acceptance of SENT-007 remains pending. SENT-003/SENT-004 closure remains unrecorded.
 
 Topics:
 
@@ -83,7 +83,7 @@ Topics:
 | --- | --- | --- |
 | Minimal Spring Boot application | In Progress | Scaffold built and started; HTTP 200 with {"status":"UP"} verified on 2026-10-29. Owner acceptance of this deliverable pending. |
 | Working request forwarding | In Progress | Owner-written GET /hello route reviewed and verified: 200 with backend JSON; /unknown 404; backend down 500; backend restored 200. Owner acceptance and SENT-004 closure pending. |
-| Initial automated tests | Not Started | Not yet recorded |
+| Initial automated tests | In Progress | SENT-007 harness passed sequential/restart/concurrent HTTP and backend-count checks with Java 21/Maven Wrapper; documented one-command workflow. Owner review and acceptance pending. |
 
 ## Phase 2 — Rate Limiting and Concurrency (Weeks 4–5)
 
@@ -224,4 +224,4 @@ Other DOCUMENTED stack choices in [CURRENT_STATE.md](CURRENT_STATE.md), includin
 
 ## Next micro-task
 
-SENT-006 is Completed and approved after review of all existing acceptance evidence; no tests were repeated. No next ticket is active. PROPOSED next milestone: (1) persist the current local HTTP/backend/health/restart checks as one runnable harness, (2) add 100 concurrent HTTP requests with five admissions/95 rejections and exactly five backend receipts, and (3) document/run the Java 21/Maven verification workflow. This recommendation is not implementation approval. Phase 1 remains In Progress; SENT-003/SENT-004 closure remains unrecorded. See CURRENT_STATE.md sections 8 and 25.
+SENT-007 is active. Review test_sequential() and its separate backend receipt assertion with the owner, then the concurrent gate/process isolation as needed. The harness already passed its first complete run; repeat only if changes or unresolved concerns justify it. Closure requires owner approval. Phase 1 remains In Progress; no phase/ticket advancement or independent proficiency is inferred. See CURRENT_STATE.md section 26 and gateway/tests/README.md for the runnable command.

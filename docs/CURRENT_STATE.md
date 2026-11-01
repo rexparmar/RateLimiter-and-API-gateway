@@ -11,13 +11,13 @@ Project: Sentinel — Distributed Rate Limiter & API Gateway
 * Phase: 1 — Java and Gateway Foundations
 * Phase Status: In Progress
 * Roadmap Weeks: 2–3 (planned learning sequence, not elapsed-time verification)
-* Milestone: SENT-006 completed and approved; existing build and runtime evidence reviewed without repeating tests
-* Active Ticket: None — SENT-006 closed; next engineering ticket awaits owner approval
-* Status: Completed (SENT-006)
+* Milestone: SENT-007 isolated regression harness implemented; Java 21 build and sequential/restart/concurrent scenarios passed; owner review pending
+* Active Ticket: SENT-007 — Repeatable Gateway Regression Tests
+* Status: In Progress
 
 2. Current Objective
 
-SENT-006 is Completed and approved, 2026-11-01, under the owner's explicit conditional closure instruction: close if existing acceptance evidence is sufficient (DOCUMENTED). Closure review confirmed all six criteria were already successfully executed against the reviewed integration (VERIFIED; sections 24–25). No application build or runtime tests were repeated. Two seven-request sequences separated by restart each returned five 200 responses and two 429 responses, with exactly five backend receipts; health remained UP and the Java 21 Maven package succeeded. No active next ticket is selected. PROPOSED next milestone: persist repeatable gateway regression checks and add concurrent HTTP admission coverage, subject to approval. SENT-005 remains completed/approved; SENT-003/SENT-004 closure remains unrecorded. No Redis, expiration, authentication, or dependency additions were implemented.
+SENT-007 is In Progress under the owner's explicit test-only authorization, 2026-11-01 (DOCUMENTED). A standard-library Python harness now builds the real gateway with Java 21 through Maven Wrapper, starts its own counted backend and fresh gateway processes, verifies sequential and concurrent HTTP behavior plus restart reset/health, and cleans up its test processes. The first full execution exited 0 with all scenarios passing (VERIFIED; section 26). The owner chose to review/adjust drafted tests; that review and ticket closure approval remain pending. Production source/configuration, dependencies, and existing demo processes were preserved. SENT-006 and SENT-005 remain completed/approved; SENT-003/SENT-004 closure remains unrecorded.
 
 The project owner has approved the high-level architectural direction and instructed closure of SENT-002 (DOCUMENTED). The readiness review verified the required Phase 0 artifacts and consistency with REQUIREMENTS.md. Phase 0 is Completed against the roadmap's documented deliverables and review/approval rules; no separate Phase 0 acceptance checklist is present. No independent proficiency assessment or runtime validation is inferred from this completion.
 
@@ -98,7 +98,7 @@ File contents and current Git status must be verified by Codex before reporting 
 6. Current Restrictions
 
 * Explicit initialization authorization covers the minimal gateway/ scaffold, Maven Wrapper, Gateway Server WebFlux, Actuator, and their dependency downloads. The owner will implement actual gateway behavior with mentoring.
-* SENT-006 authorizes explained, incremental assisted coding: the owner explicitly requested Codex write one class/method at a time and explain decisions. Scope remains a route-scoped filter, shared injected in-memory limiter, fixed demo-client identity, and specified verification. Pause for understanding between teaching steps. No Redis, expiration, authentication, unrelated changes, or dependency additions are authorized.
+* SENT-007 authorizes test-only scripts/code, necessary fixtures, and execution. The owner chose to review and adjust drafted tests while Codex handles infrastructure. Production application behavior must not change without asking; no Redis, expiration, authentication, extra gateway features, or dependency additions are authorized. Explain unfamiliar concepts before asking the owner to implement them.
 * Do not implement future-phase features.
 * Automatic progress updates to this file and progress indicators in docs/PROJECT_ROADMAP.md, once it exists, have standing project-owner approval under AGENTS.md. Other file changes require explicit approval.
 * Application code, dependency changes, architectural decisions, scope or learning-objective changes, ticket closure, commits, pushes, and destructive operations still require explicit project-owner approval.
@@ -118,13 +118,13 @@ Documentation discrepancy: ARCHITECTURE.md retains its PROPOSED and approval-pen
 
 8. Next Micro-Task
 
-PROPOSED next implementation milestone: reproducible gateway regression checks. (1) Save the existing HTTP/backend-receipt/health/restart checks as one runnable harness with isolated startup and cleanup. (2) Add a 100-request concurrent HTTP scenario asserting five admissions, 95 rejections, and only five backend receipts. (3) Document and run the harness with Java 21 and Maven as a repeatable verification workflow. No new ticket, source change, dependency, or execution of that proposed work is authorized by closure alone. At the last runtime verification, the demo allowance was exhausted and both processes were left running; no fresh availability check was performed at closure.
+Next action for SENT-007: review test_sequential() in gateway/tests/run_regression.py with the owner, especially the expected status sequence and independent backend-receipt assertion. Then review the concurrent start gate and process isolation as needed; change tests only if that review identifies a requirement gap. One-command execution is documented in gateway/tests/README.md: python3 gateway/tests/run_regression.py from the repository root. Do not close SENT-007 or advance tickets without owner approval. No further implementation is currently required to satisfy the tested acceptance cases.
 
 Official Spring documentation and release records establish the approved compatibility line; exact parent/BOM artifact downloads returned HTTP 200, and the resulting build and startup passed. Section 14 records sources and actual results. Constructor null-validation and independent compiler/runtime explanation remain unverified; they were not silently marked complete when the owner requested moving to the actual project.
 
 The roadmap records the owner-approved learning scope. Further behavior and open architectural decisions remain subject to the learning protocol and applicable owner authorization.
 
-Phase 0 and SENT-002 remain Completed. The recorded overall phase remains Phase 1 In Progress; SENT-005 is a limited rate-limiting/concurrency exercise without asserting completion of Phase 1 or a formal phase transition. SENT-003 and SENT-004 closure approvals remain unrecorded. Routing has historical execution evidence, and the standalone limiter now has passing sequential/concurrent checks; gateway-specific automated tests and deliverable acceptance remain outstanding.
+Phase 0 and SENT-002 remain Completed. The recorded overall phase remains Phase 1 In Progress; SENT-005 was a limited rate-limiting/concurrency exercise without asserting Phase 1 completion or a formal phase transition. SENT-003 and SENT-004 closure approvals remain unrecorded. Gateway regression automation now has a passing execution in SENT-007; owner review, deliverable acceptance, and ticket closure remain outstanding.
 
 9. Learning Progress
 
@@ -518,3 +518,37 @@ Guided learning review: the owner explained the interface/implementation relatio
 Known limitations and nonblocking diagnostics remain those in section 24: fixed shared identity, process-local/no-expiration state, validation deprecations, and macOS native-DNS-provider fallback. Existing architecture/decision-log metadata discrepancies remain documented and were not silently edited. Live process/remote availability and any new test results are UNKNOWN at closure because they were not queried. No acceptance verification is missing for this ticket's approved scope.
 
 Only CURRENT_STATE.md and PROJECT_ROADMAP.md changed during closure. Existing application/exercise changes were preserved; no working application code, dependency, architectural decision, staging, commit, or push changed. PROPOSED next milestone is the three-step regression workflow in section 8; it has not been started.
+
+26. SENT-007 Repeatable Gateway Regression Harness — 2026-11-01
+
+DOCUMENTED authorization: the owner started SENT-007 and approved test-only code, scripts, fixtures, and execution, reserving production behavior changes for separate approval. The owner explicitly selected review/adjustment of a drafted sequential test over writing assertions from scratch. This records the participation preference; understanding/review and closure are not inferred as complete.
+
+VERIFIED initial inspection: AGENTS.md, CURRENT_STATE.md, DECISIONS.md, PROJECT_ROADMAP.md, gateway POM/configuration/source, Java/Python tools, and Git status were inspected. The working tree was clean on main at HEAD 745e43a. Explicit Temurin Java/compiler 21.0.11 and Python 3.9.6 are available. The production POM still has only Gateway/Actuator runtime starters, with no added test dependencies.
+
+Created gateway/tests/run_regression.py and gateway/tests/README.md. The harness uses only the installed Python standard library. It selects an existing JDK 21 (explicit JAVA_HOME, macOS java_home, or PATH), validates the runtime/compiler, and calls ./mvnw -B -ntp package with that JDK. It builds and runs the actual executable JAR; Maven's own No tests to run message remains accurate because these external HTTP scenarios run after packaging, not through Surefire.
+
+Isolation: a test-owned ThreadingHTTPServer binds to 127.0.0.1:0 and records each actual backend receipt under a lock. Each scenario has a new gateway JVM bound to an OS-assigned loopback port. A test-only copy of the newly built JAR's complete properties changes only backend URI, listening port/address, and log formatting; production files and the actual route predicates/filter remain intact. The backend stays alive across sequential and restart scenarios, so restart receives a new gateway allowance and the backend receipt delta is checked independently. Gateway readiness requires its own startup log plus HTTP health UP, polled against a deadline; no assumed fixed startup delay is used.
+
+Concurrency infrastructure was explained before implementation: Python worker threads run HTTP calls, a start gate coordinates overlap, futures propagate errors, and a lock protects fixture receipts. No unfamiliar Java APIs or new Java code were introduced. The concurrency scenario submits 100 requests to 20 workers; the first 20 must reach the gate before release. All outcomes are collected; transport/worker errors, unexpected statuses, missing backend responses, or wrong receipt counts fail the command. Process cleanup runs in finally/context-manager paths, with bounded termination and force-stop of test-owned JVMs if necessary. No existing service is killed or reused.
+
+Executed documented command from the repository root:
+
+```sh
+python3 gateway/tests/run_regression.py
+```
+
+VERIFIED execution: exit 0 using Java 21.0.11. Maven Wrapper package passed. Results are in gateway/target/regression/run-cw7640s0/results.json, with build.log, per-scenario gateway logs, backend.jsonl, and the generated test configuration in the same ignored run directory.
+
+| Scenario | Actual HTTP results | Actual backend receipts | Health | Test gateway PID |
+| --- | --- | --- | --- | --- |
+| Fresh sequential | 200,200,200,200,200,429,429 | 5 | UP | 41950 |
+| Gateway restarted after exhausted sequential run | 200,200,200,200,200,429,429 | 5 additional | UP | 41962 |
+| Fresh concurrent, 100 requests / 20 workers | Exactly 5 HTTP 200; 95 HTTP 429 | 5 | UP | 41968 |
+
+Admitted bodies matched backend JSON in each scenario. Total recorded receipts were 15. The harness printed ALL GATEWAY REGRESSION TESTS PASSED and results.json contains passed: true. Each test-owned gateway exited before the next scenario; backend shutdown completed before final success. Final listener inspection found no test gateway listeners and showed the original demo processes still on 8080 (PID 40317) and 8081 (PID 31355). The harness therefore ran while existing demo services occupied those ports, without depending on or disturbing them.
+
+VERIFIED protection checks: SHA/object-hash comparison confirms POM, production configuration/classes, AGENTS.md, DECISIONS.md, and the Git index were unchanged. New test files passed whitespace inspection; git diff --check passed. Test artifacts are under the already ignored gateway/target/ directory; only the two new test files and two progress documents are intended working-tree changes. No dependencies, production behavior, Redis, time-window logic, authentication, architecture decisions, staging, commits, or pushes were changed.
+
+Known limits: this is a correctness regression suite, not a benchmark or exhaustive interleaving proof. It targets macOS/Linux and the current properties-based Netty gateway layout, requires installed JDK 21 and Python 3.9+, and may download existing Maven dependencies on a cold cache. A single complete run is verified; repeated/parallel harness invocations and injected failure/interruption cleanup have not been independently exercised. The usual HV000271 and macOS DNS-provider fallback diagnostics appeared but did not prevent the literal-IP test scenarios. No framework/dependency change was made to suppress them.
+
+SENT-007 remains In Progress pending the owner's review/understanding and explicit closure approval. Next: review the sequential assertions and why backend receipt checks are separate from HTTP status checks; no further test run is needed unless review leads to code changes or an unresolved issue.
