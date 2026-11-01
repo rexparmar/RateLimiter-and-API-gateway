@@ -1,6 +1,6 @@
 # Sentinel — Persistent Project Roadmap
 
-Last Updated: 2026-10-31
+Last Updated: 2026-11-01
 
 ## Objective and planning horizon
 
@@ -13,10 +13,10 @@ The DOCUMENTED, project-owner-approved plan targets 12 weeks at approximately 8�
 | Item | Current value | Evidence |
 | --- | --- | --- |
 | Current phase | Phase 1 — Java and Gateway Foundations: In Progress | DOCUMENTED: owner-authorized SENT-003 scaffold; VERIFIED: Java 21 build/start and HTTP health check |
-| Active ticket | SENT-005 — In-Memory Rate Limiter | DOCUMENTED: explicit owner instruction, 2026-10-31; SENT-003/SENT-004 closure remains unrecorded |
-| Ticket status | In Progress; sequential/concurrent tests passed; owner review and closure pending | VERIFIED: Java 21 compilation/run exited 0; 100 concurrent requests yielded 5 admissions and 95 rejections per client; see CURRENT_STATE.md section 21 |
-| Latest approved milestones | SENT-000.7, SENT-000.8, SENT-001, and SENT-002 — Completed and approved | DOCUMENTED: explicit project-owner closure approval |
-| Implementation | Gateway scaffold and GET /hello route; separate in-memory limiter exercise and test harness | VERIFIED: historical gateway checks and current standalone sequential/concurrent tests. No limiter integration into the gateway, Redis, authentication, or custom filters. |
+| Active ticket | None — SENT-006 closed; next ticket awaits owner approval | DOCUMENTED: conditional closure instruction satisfied, 2026-11-01; SENT-003/SENT-004 closure remains unrecorded |
+| Ticket status | Completed and approved (SENT-006) | VERIFIED: existing build, HTTP, backend-exclusion, health, and restart evidence covers all criteria; no tests repeated; see CURRENT_STATE.md sections 24–25 |
+| Latest approved milestones | SENT-000.7, SENT-000.8, SENT-001, SENT-002, SENT-005, and SENT-006 — Completed and approved | DOCUMENTED: owner closure approval; SENT-005/SENT-006 accepted as assisted work with verified execution evidence |
+| Implementation | Hello-route filter attached to one injected local limiter using fixed demo-client; standalone exercise preserved | VERIFIED: packaged application passed local HTTP admission/rejection, backend-receipt, health, and restart-reset checks. No Redis, expiration, authentication, or new dependencies. |
 | Foundation work | Context-management instructions, current-state documentation, and decision log exist and contain content | VERIFIED: inspected repository files |
 
 The topics and implementation deliverables below describe planned work. Their inclusion does not mean a feature is implemented, a concept is mastered, or a test has passed. Phase 0's three deliverables are Completed following artifact and consistency review and the owner's requirements and high-level architecture approval. For the initial scaffold, Boot 4.1.2, Cloud 2025.1.4, and Gateway Server WebFlux 5.0.4 are approved and verified. Failure policy and other unselected implementation details remain open. Phase 1 is In Progress with the scaffold and one HTTP-verified forwarding route; detailed evidence is in [CURRENT_STATE.md](CURRENT_STATE.md), sections 12–16.
@@ -224,4 +224,4 @@ Other DOCUMENTED stack choices in [CURRENT_STATE.md](CURRENT_STATE.md), includin
 
 ## Next micro-task
 
-SENT-005 remains active pending owner review of the passing tests, the compute() atomicity explanation, and explicit closure approval. At the owner's request Codex wrote the tests; the limiter was preserved. No new integration, phase transition, independent proficiency claim, or ticket closure is inferred. SENT-003 and SENT-004 closure remains unrecorded. Verified results and limitations are in CURRENT_STATE.md section 21.
+SENT-006 is Completed and approved after review of all existing acceptance evidence; no tests were repeated. No next ticket is active. PROPOSED next milestone: (1) persist the current local HTTP/backend/health/restart checks as one runnable harness, (2) add 100 concurrent HTTP requests with five admissions/95 rejections and exactly five backend receipts, and (3) document/run the Java 21/Maven verification workflow. This recommendation is not implementation approval. Phase 1 remains In Progress; SENT-003/SENT-004 closure remains unrecorded. See CURRENT_STATE.md sections 8 and 25.

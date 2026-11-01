@@ -1,6 +1,6 @@
 Sentinel — Current Project State
 
-Last Updated: 2026-10-31
+Last Updated: 2026-11-01
 Repository: RateLimiter
 Project: Sentinel — Distributed Rate Limiter & API Gateway
 
@@ -11,22 +11,24 @@ Project: Sentinel — Distributed Rate Limiter & API Gateway
 * Phase: 1 — Java and Gateway Foundations
 * Phase Status: In Progress
 * Roadmap Weeks: 2–3 (planned learning sequence, not elapsed-time verification)
-* Milestone: SENT-005 sequential and concurrent test harness passed with Java 21; limiter preserved; owner review/closure pending
-* Active Ticket: SENT-005 — In-Memory Rate Limiter
-* Status: In Progress
+* Milestone: SENT-006 completed and approved; existing build and runtime evidence reviewed without repeating tests
+* Active Ticket: None — SENT-006 closed; next engineering ticket awaits owner approval
+* Status: Completed (SENT-006)
 
 2. Current Objective
 
-SENT-005 is In Progress under the owner's explicit instruction (DOCUMENTED, 2026-10-31). The exercise is a per-client in-memory allowance cap using Java 21 and ConcurrentHashMap.compute(): admit the first five requests and reject subsequent requests without increasing the count. At the owner's explicit requests, Codex supplied the final compute() rewrite and test harness. Sequential checks and concurrent runs passed with Java 21.0.11 (VERIFIED; section 21). The existing limiter was preserved during testing. Owner understanding/review and explicit closure approval remain pending; assisted code and bounded concurrency tests are not an independent proficiency assessment or proof of all possible interleavings. SENT-003/SENT-004 closure approvals remain unrecorded. No reset, HTTP integration, Redis, or dependency changes are in scope.
+SENT-006 is Completed and approved, 2026-11-01, under the owner's explicit conditional closure instruction: close if existing acceptance evidence is sufficient (DOCUMENTED). Closure review confirmed all six criteria were already successfully executed against the reviewed integration (VERIFIED; sections 24–25). No application build or runtime tests were repeated. Two seven-request sequences separated by restart each returned five 200 responses and two 429 responses, with exactly five backend receipts; health remained UP and the Java 21 Maven package succeeded. No active next ticket is selected. PROPOSED next milestone: persist repeatable gateway regression checks and add concurrent HTTP admission coverage, subject to approval. SENT-005 remains completed/approved; SENT-003/SENT-004 closure remains unrecorded. No Redis, expiration, authentication, or dependency additions were implemented.
 
 The project owner has approved the high-level architectural direction and instructed closure of SENT-002 (DOCUMENTED). The readiness review verified the required Phase 0 artifacts and consistency with REQUIREMENTS.md. Phase 0 is Completed against the roadmap's documented deliverables and review/approval rules; no separate Phase 0 acceptance checklist is present. No independent proficiency assessment or runtime validation is inferred from this completion.
 
 The owner authorized and wrote a standalone exercise in excercise/sent-003-java-basics/src with file-by-file mentoring (DOCUMENTED: owner instruction; VERIFIED: reviewed source). Java 21 compilation and execution succeeded for both always-allow and always-reject implementations. This is guided practical evidence, not an independent proficiency assessment or a completed production rate limiter. See section 13 for commands, results, and limitations.
 
-Strict shared enforcement applies during normal operation when Redis is available; when Redis is unavailable, the configured failure policy applies. Fail-open and local fallback may weaken global guarantees. The production rate-limiting algorithm, identity mechanism, load balancer, and Redis-failure policy remain explicitly undecided. For the approved scaffold, Spring Boot 4.1.2, Spring Cloud 2025.1.4, and Gateway Server WebFlux are selected and verified. SENT-005 authorizes only the owner-written in-memory exercise and its tests; it does not select a production time-window algorithm or add Redis, HTTP filters, authentication, or other features.
+Strict shared enforcement applies during normal operation when Redis is available; when Redis is unavailable, the configured failure policy applies. Fail-open and local fallback may weaken global guarantees. The production rate-limiting algorithm, identity mechanism, load balancer, and Redis-failure policy remain explicitly undecided. Spring Boot 4.1.2, Spring Cloud 2025.1.4, and Gateway Server WebFlux 5.0.4 are the selected framework setup. SENT-006's fixed demo-client identity and local no-reset allowance are explicitly temporary learning behavior, not production identity verification or a distributed enforcement implementation.
 
 3. Completed Work
 
+* SENT-006 — Completed and approved by the owner, 2026-11-01 (DOCUMENTED: closure authorized after verifying existing acceptance evidence). Route-scoped filter, shared injected limiter, fixed demo-client, five-admission cap, backend exclusion, health, restart reset, and successful Java 21 package were reviewed (VERIFIED; sections 24–25). Assisted implementation and guided explanation are recorded; no independent proficiency claim or broader production readiness is inferred.
+* SENT-005 — Completed and approved by the owner, 2026-10-31 (DOCUMENTED: explicit closure instruction). Standalone assisted implementation and JDK-only tests passed sequential boundaries, count preservation, independent clients, and 100-request concurrent scenarios (VERIFIED: section 21). No independent proficiency or exhaustive concurrency proof is inferred.
 * Created the RateLimiter project directory.
 * Created the docs directory.
 * Initialized the local Git repository.
@@ -96,7 +98,7 @@ File contents and current Git status must be verified by Codex before reporting 
 6. Current Restrictions
 
 * Explicit initialization authorization covers the minimal gateway/ scaffold, Maven Wrapper, Gateway Server WebFlux, Actuator, and their dependency downloads. The owner will implement actual gateway behavior with mentoring.
-* SENT-005 authorizes mentoring/review of owner-written in-memory admission logic and assistance creating and running sequential and concurrent tests. Java 21, ConcurrentHashMap, atomic per-key updates, independent client counts, and a five-admission cap without reset define this exercise. No Redis, HTTP integration/filters, authentication, additional features, or dependency changes are authorized by this checkpoint.
+* SENT-006 authorizes explained, incremental assisted coding: the owner explicitly requested Codex write one class/method at a time and explain decisions. Scope remains a route-scoped filter, shared injected in-memory limiter, fixed demo-client identity, and specified verification. Pause for understanding between teaching steps. No Redis, expiration, authentication, unrelated changes, or dependency additions are authorized.
 * Do not implement future-phase features.
 * Automatic progress updates to this file and progress indicators in docs/PROJECT_ROADMAP.md, once it exists, have standing project-owner approval under AGENTS.md. Other file changes require explicit approval.
 * Application code, dependency changes, architectural decisions, scope or learning-objective changes, ticket closure, commits, pushes, and destructive operations still require explicit project-owner approval.
@@ -116,7 +118,7 @@ Documentation discrepancy: ARCHITECTURE.md retains its PROPOSED and approval-pen
 
 8. Next Micro-Task
 
-Next action for SENT-005: owner review of the passing sequential/concurrent results and the atomic admission explanation, followed by explicit ticket closure approval when ready. No new implementation or ticket transition is inferred. Tests read the existing package-visible map to check stored counts; the limiter was not modified. SENT-004 explanation/review and closure remain outstanding; they were not imposed as prerequisites for this authorized work.
+PROPOSED next implementation milestone: reproducible gateway regression checks. (1) Save the existing HTTP/backend-receipt/health/restart checks as one runnable harness with isolated startup and cleanup. (2) Add a 100-request concurrent HTTP scenario asserting five admissions, 95 rejections, and only five backend receipts. (3) Document and run the harness with Java 21 and Maven as a repeatable verification workflow. No new ticket, source change, dependency, or execution of that proposed work is authorized by closure alone. At the last runtime verification, the demo allowance was exhausted and both processes were left running; no fresh availability check was performed at closure.
 
 Official Spring documentation and release records establish the approved compatibility line; exact parent/BOM artifact downloads returned HTTP 200, and the resulting build and startup passed. Section 14 records sources and actual results. Constructor null-validation and independent compiler/runtime explanation remain unverified; they were not silently marked complete when the owner requested moving to the actual project.
 
@@ -421,4 +423,98 @@ Atomicity explanation: compute() executes the check and counter update atomicall
 
 Limitations: per-limiter-instance/process state, no shared distributed limit, no reset or expiration, no client-entry eviction, loss of state on process restart, and no defined identity validation policy. Null/invalid client behavior, persistence, HTTP integration, and performance were not tested. These are bounded correctness checks, not exhaustive coverage of thread schedules or a benchmark.
 
-Hash comparison VERIFIED that LocalRateLimiter.java, RateLimiter.java, gateway configuration/entry point, and the Git index stayed unchanged during this test task. Only LocalRateLimiterTest.java and the two progress documents were changed by Codex. Class output went to /private/tmp; existing owner-generated class files were untouched. No dependencies, architecture, staging, commits, or pushes changed. SENT-005 remains In Progress pending owner review, understanding, and explicit closure approval.
+Hash comparison VERIFIED that LocalRateLimiter.java, RateLimiter.java, gateway configuration/entry point, and the Git index stayed unchanged during this test task. Only LocalRateLimiterTest.java and the two progress documents were changed by Codex. Class output went to /private/tmp; existing owner-generated class files were untouched. No dependencies, architecture, staging, commits, or pushes changed. SENT-005 remained In Progress at that verification checkpoint; subsequent owner-approved closure is recorded below.
+
+22. SENT-005 Closure and SENT-006 Preparation — 2026-10-31
+
+DOCUMENTED: the owner approved SENT-005 closure specifically as a standalone assisted implementation with successful sequential/concurrent tests and explicitly started SENT-006. Integration behavior is owner-written. SENT-006 remains In Progress.
+
+VERIFIED inspection: AGENTS.md, CURRENT_STATE.md, DECISIONS.md, PROJECT_ROADMAP.md, the existing limiter/interface, gateway POM, application entry point, route configuration, and Git status were inspected. Existing progress edits and the untracked SENT-005 exercise were preserved. The gateway currently has only its application entry point plus configuration for hello-route (Path=/hello, Method=GET, target http://127.0.0.1:8081) and health exposure. No integrated limiter/filter source exists. No source was generated, build executed, or HTTP request performed during preparation.
+
+PROPOSED minimal implementation layout: add RateLimiter.java and LocalRateLimiter.java under com.sentinel.gateway.ratelimit, add DemoRateLimitGatewayFilterFactory.java under com.sentinel.gateway.filter, and add one filter reference to the existing route in application.properties. Keep the standalone exercise as its own artifact. Register LocalRateLimiter and the factory as Spring components; inject RateLimiter through the factory constructor. The default singleton scope shares one limiter bean in this application context, not across gateway processes. No dependency or application-entry-point change is expected.
+
+Verified official API guidance: [Gateway 5.0.4 developer guide](https://docs.spring.io/spring-cloud-gateway/reference/spring-cloud-gateway-server-webflux/developer-guide.html) describes AbstractGatewayFilterFactory, its apply() callback, and the GatewayFilterFactory naming suffix. Proposed class DemoRateLimitGatewayFilterFactory is referenced as DemoRateLimit in route configuration. Admission must execute for each request inside the returned filter, before delegating to the chain; it must not run once during factory construction. On rejection, set HTTP 429 and complete the response without invoking the forwarding chain. [Spring bean scopes](https://docs.spring.io/spring-framework/reference/core/beans/factory-scopes.html) documents default singleton scope; [Boot package guidance](https://docs.spring.io/spring-boot/reference/using/structuring-your-code.html) supports subpackages beneath com.sentinel.gateway for component scanning.
+
+Pending runtime evidence: 200 for requests one through five; 429 for six/seven; backend logs/counts showing exactly five forwarded requests and no receipts for rejects; health UP; a fresh allowance after gateway restart; successful Java 21 application build. All remain UNKNOWN until executed against the integration. Fixed demo-client intentionally combines all callers into one temporary quota; no header identity, production authentication, distributed guarantee, time reset, or Redis is implied. The historical editor-only duplicate-class warning was not reproduced as a compiler error; the new gateway classes will use named packages.
+
+Only CURRENT_STATE.md and PROJECT_ROADMAP.md were updated for this closure/preparation checkpoint. Architectural decision documents and application/exercise source were unchanged; no staging, commit, push, dependency addition, or further ticket closure occurred.
+
+VERIFIED final Git inspection: HEAD is 62e4a63 (In memory limiter code written with test.). The SENT-005 source and existing .class files are now tracked; final status shows only the two modified progress documents. This differs from the initial inspection's untracked exercise directory; no commit was made by Codex and no explanation or push is inferred. git diff --check passed.
+
+23. SENT-006 Assisted Coding: Spring-Managed Limiter — 2026-11-01
+
+DOCUMENTED: the owner explicitly requested that Codex write code and explain decisions one class/method at a time, with questions permitted to strengthen understanding. This supersedes the earlier owner-only coding preference for this assisted workflow; it does not authorize skipping explanations or implementing future features.
+
+VERIFIED changes: added gateway/src/main/java/com/sentinel/gateway/ratelimit/RateLimiter.java with the existing boolean processRequest(String clientId) contract, and LocalRateLimiter.java with the existing compute() admission logic. Both use a named package beneath the application package. The implementation adds @Component registration, @Override, and private final map visibility; the standalone exercise is unchanged. @Component and default singleton scope are intended to provide a shared bean for constructor injection; runtime bean creation has not yet been verified. Spring's discovery and shared-instance role were explained before writing these files.
+
+Executed from gateway/: env JAVA_HOME=/Library/Java/JavaVirtualMachines/temurin-21.jdk/Contents/Home ./mvnw -o -B -ntp compile. VERIFIED result: exit 0, BUILD SUCCESS, three application sources compiled with release 21. The sandbox initially blocked Maven cache locking; the same offline command succeeded with required execution permission. No dependency download or dependency declaration change occurred. No tests, HTTP requests, application restart, or gateway enforcement verification occurred in this step.
+
+Next teaching step: confirm understanding of shared counter lifetime, then explain/write the filter factory and its constructor injection. Only the two new gateway classes and progress documents changed; route configuration, application entry point, exercise, and architectural decision documents were preserved. No staging, commit, push, or ticket closure occurred. SENT-006 remains In Progress.
+
+Subsequent guided step, 2026-11-01: VERIFIED comprehension response: the owner correctly explained that creating a new limiter per request would make each request appear to be the first. This is a specific guided response, not an independent proficiency assessment. Codex then added DemoRateLimitGatewayFilterFactory.java with @Component, a private final RateLimiter field, and a constructor storing the supplied dependency. It is deliberately only a plain component scaffold at this step; no Gateway factory inheritance, filter callback, route attachment, or HTTP enforcement exists yet. The same offline Java 21 Maven compile exited 0 with BUILD SUCCESS and four application sources compiled. No tests or HTTP checks ran. Next: explain the constructor/interface choice and introduce the Gateway API before implementation. Only the new scaffold and progress records changed in this step.
+
+Subsequent filter-method step, 2026-11-01: the owner explained that depending on the interface permits replacing the implementation without rewriting the filter; clarified that constructor injection supplies one implementation, not all implementations. This was guided discussion, not a verified independent architecture exercise. Explained exchange, filter chain delegation, AbstractGatewayFilterFactory, its empty Config type, and Mono<Void> completion before adding the Gateway API and apply() method. The callback checks the injected limiter once per request for fixed demo-client, returns chain.filter(exchange) when allowed, and otherwise sets HTTP 429 and returns response.setComplete() without invoking the chain. The empty public static Config class exists only for the factory API; no configurable failure or time-window policy was selected.
+
+VERIFIED: the offline Maven compile with explicit Java 21 again exited 0 with BUILD SUCCESS and four sources compiled. The route configuration was untouched, so this filter is not yet attached to HTTP traffic. No tests, app startup, forwarding/429 checks, backend receipt assertions, health checks, or restart-reset verification occurred. Only the filter class and progress records changed in this step; dependencies, standalone exercise, route, and architectural decisions were preserved. SENT-006 remains In Progress.
+
+24. SENT-006 Route Attachment and Runtime Verification — 2026-11-01
+
+VERIFIED: added spring.cloud.gateway.server.webflux.routes[0].filters[0]=DemoRateLimit to the existing hello-route. The existing Path=/hello, Method=GET, backend URI, and health settings were preserved. DemoRateLimit resolves the custom DemoRateLimitGatewayFilterFactory. Its constructor receives the Spring-managed limiter; admission executes inside the per-request filter callback using fixed demo-client. All callers intentionally share this temporary identity. No production identity or distributed-rate policy is implied.
+
+Guided comprehension: the owner explained that a rejected request should stop. Clarified that chain.filter(exchange) means continue processing, not perform the admission check; rejection completes the response without delegating. This is guided discussion, not independent proficiency evidence.
+
+Stopped the old SENT-004 gateway process before rebuilding. Executed from gateway/:
+
+```sh
+env JAVA_HOME=/Library/Java/JavaVirtualMachines/temurin-21.jdk/Contents/Home ./mvnw -o -B -ntp package
+/Library/Java/JavaVirtualMachines/temurin-21.jdk/Contents/Home/bin/java -jar target/sentinel-gateway-0.0.1-SNAPSHOT.jar
+```
+
+VERIFIED package result: exit 0, BUILD SUCCESS, executable JAR produced. Maven reported No tests to run; no persistent gateway test suite was created. HTTP assertions below were executed separately using Python's standard-library urllib, sequential requests with ten-second timeouts, and assertions on status/body. No dependency was added or downloaded. The running backend was the existing temporary Python fixture on 127.0.0.1:8081 (PID 31355), with its pending access logs captured as a baseline before issuing requests.
+
+VERIFIED first gateway run: PID 40288 used Java 21.0.11 and logged successful Netty startup on port 8080. Seven sequential GET requests to http://127.0.0.1:8080/hello returned:
+
+| Request | Actual HTTP status | Actual body |
+| --- | --- | --- |
+| 1 | 200 | {"message":"Hello from backend"} |
+| 2 | 200 | {"message":"Hello from backend"} |
+| 3 | 200 | {"message":"Hello from backend"} |
+| 4 | 200 | {"message":"Hello from backend"} |
+| 5 | 200 | {"message":"Hello from backend"} |
+| 6 | 429 | Empty |
+| 7 | 429 | Empty |
+
+After those requests, GET http://127.0.0.1:8080/actuator/health returned HTTP 200 and {"status":"UP"}. The assertion command exited 0. The newly captured backend log contained exactly five GET /hello HTTP/1.1 entries, all status 200. Across this isolated seven-request sequence, the backend received only the admitted requests, with no receipt for the two rejections. This is the observed local test, not a guarantee under all future filters/configurations.
+
+VERIFIED restart/reset: stopped PID 40288, confirmed port 8080 had no listener, and started the same JAR with the same Java 21 command as PID 40317. The backend remained running. Repeated all seven requests and the health check. Observed the identical 200,200,200,200,200,429,429 sequence and bodies; health again returned HTTP 200 and {"status":"UP"}. Assertions exited 0. Exactly five additional backend receipts were logged. This verifies that restarting the gateway reset the exhausted in-memory allowance and that the cap/rejection path still operated afterward.
+
+VERIFIED final process inspection: gateway PID 40317 listens on 8080; backend PID 31355 listens on 8081. Both were left running. The final gateway's demo-client count is exhausted by the seven-request verification; subsequent /hello requests should be rejected until its limiter state is recreated. No expiration or scheduled reset exists.
+
+Observed nonblocking runtime diagnostics: HV000271 validation deprecations for routes/predicates/filters, and a Netty error loading the macOS native DNS provider followed by fallback to system defaults. Literal-IP backend forwarding succeeded; hostname DNS behavior was not verified. No dependency was added to address these diagnostics. The old process reported graceful shutdown complete when stopped before rebuilding; this does not establish zero downtime or in-flight recovery guarantees.
+
+Limitations: fixed identity combines all callers; counters are local to one application instance, reset on restart, and have no expiration/eviction. Standalone concurrency coverage belongs to SENT-005; concurrent HTTP admission, backend-failure allowance behavior, production identity, distributed state, load/performance, and automated regression integration were not newly tested. No Redis, authentication, time-window logic, or additional dependencies were added.
+
+SENT-006 remained In Progress at this runtime-verification checkpoint, pending owner review and explicit closure approval. This step changed only route configuration and progress records; integration classes were added in the preceding approved teaching steps. The application entry point, POM, standalone exercises, AGENTS.md, and architectural decision documents were preserved. No staging, commit, push, or additional ticket closure occurred.
+
+25. SENT-006 Final Review and Approved Closure — 2026-11-01
+
+DOCUMENTED authorization: after guided review of the request flow, the owner explicitly requested finalization and approved closure conditional on sufficient existing verification evidence. The condition is satisfied. SENT-006 is Completed and approved. This closes only SENT-006; no phase completion, SENT-003/SENT-004 closure, or new ticket transition is inferred.
+
+VERIFIED review: read AGENTS.md, CURRENT_STATE.md, DECISIONS.md, PROJECT_ROADMAP.md, the integrated interface/limiter/filter, route configuration, and POM. The source retains the reviewed compute() implementation, constructor-injected shared limiter, fixed demo-client, allow-chain branch, and 429 response completion without forwarding. Compared the packaged application.properties with the source configuration: identical. Compared all packaged application class entries with the existing compiled class files: identical. Previously captured backend log evidence is still available and contains exactly five receipts for each seven-request run. The source and configuration match the implementation observed during the earlier successful execution; no new source discrepancy or acceptance blocker was found.
+
+| Acceptance criterion | Reviewed actual evidence | Classification |
+| --- | --- | --- |
+| Requests 1–5 return HTTP 200 | Five 200 responses with {"message":"Hello from backend"} in each run | VERIFIED: section 24 executed assertions |
+| Requests 6–7 return HTTP 429 | Two 429 responses with empty bodies in each run | VERIFIED: section 24 executed assertions |
+| Rejected requests do not reach backend | Exactly five new backend receipts for each seven-request sequence | VERIFIED: captured backend access logs, sections 24–25 |
+| Health remains UP | HTTP 200 and {"status":"UP"} after exhaustion in both runs | VERIFIED: section 24 executed assertions |
+| Gateway restart resets counters | Exhausted first process replaced; same JAR admitted five requests again before rejecting | VERIFIED: section 24 restart and HTTP sequence |
+| Maven build succeeds | Java 21 offline package exited 0 with BUILD SUCCESS | VERIFIED: section 24 build execution; Maven reported No tests to run |
+
+No runtime tests or builds were repeated during closure. Earlier tool execution evidence, current source review, and artifact/configuration inspection were sufficient. The runtime checks are recorded local observations, not an automated regression suite or exhaustive concurrency/production proof.
+
+Guided learning review: the owner explained the interface/implementation relationship, boolean admission result, shared-counter lifetime, forwarding path, and rejection path. Clarified the separate roles of compute() and AtomicBoolean, one injected implementation, factory apply() versus per-request callback, and the currently empty Config. This supported the guided ticket review; independent mastery was not assessed or claimed.
+
+Known limitations and nonblocking diagnostics remain those in section 24: fixed shared identity, process-local/no-expiration state, validation deprecations, and macOS native-DNS-provider fallback. Existing architecture/decision-log metadata discrepancies remain documented and were not silently edited. Live process/remote availability and any new test results are UNKNOWN at closure because they were not queried. No acceptance verification is missing for this ticket's approved scope.
+
+Only CURRENT_STATE.md and PROJECT_ROADMAP.md changed during closure. Existing application/exercise changes were preserved; no working application code, dependency, architectural decision, staging, commit, or push changed. PROPOSED next milestone is the three-step regression workflow in section 8; it has not been started.
