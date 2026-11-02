@@ -1,6 +1,6 @@
 # Sentinel Redis Shared-State Design
 
-Status: **PROPOSED — not an approved architectural decision or implemented limiter**
+Status: **APPROVED FOR SENT-011 IMPLEMENTATION — not yet implemented or verified**
 
 Ticket: SENT-010 — Redis Foundation and Shared-State Design
 
@@ -25,6 +25,8 @@ sentinel:rate-limit:v1:{client-identity}
 ```
 
 The braces form a Redis Cluster hash tag so one bucket's fields remain in one cluster slot if clustering is introduced later. The exact identity encoding and key format remain open.
+
+For SENT-011, Java constructs the agreed key using the existing resolved numeric-IP identity and passes it as `KEYS[1]`. Lua must not construct or reinterpret client identity. Broader identity encoding remains open beyond this milestone.
 
 Proposed hash fields:
 
@@ -75,6 +77,9 @@ Redis executes a Lua script atomically, so another admission operation cannot in
 - Redis is shared state for admission decisions; it is not an HTTP proxy.
 - The rate limiter owns the admission policy. Redis may execute the atomic state transition.
 - `LocalRateLimiter` remains the active implementation during SENT-010.
+- `RedisRateLimiter` remains unannotated and disconnected from gateway wiring during SENT-011. `LocalRateLimiter` stays active until a separately approved cutover.
+- The existing synchronous RateLimiter contract may use a bounded three-second wait only in isolated SENT-011 tests. It must not block a Netty event-loop thread.
+- Redis errors propagate from isolated tests. No fallback or outage policy is selected.
 - No Redis failure policy is selected here.
 - No durability guarantee, failover behavior, or zero-downtime claim is made.
 - Exact key encoding, expiration, numeric scale, Lua return structure, script loading strategy, and Redis deployment topology remain open.
@@ -89,3 +94,19 @@ Redis executes a Lua script atomically, so another admission operation cannot in
 - The Java 21 Maven package and complete existing gateway regression suite passed after the Redis dependency/configuration change.
 
 These results verify local connectivity and regression safety. They do not verify Docker Compose, distributed admission, Lua correctness, Redis failure handling, persistence, or multi-instance enforcement.
+
+## SENT-011 approved implementation parameters
+
+The project owner approved the following for SENT-011:
+
+- key: `sentinel:rate-limit:v1:{clientId}`, constructed centrally in Java from the existing numeric-IP identity;
+- fields: `available_units` and `last_refill_us`;
+- scale: 1,000,000 integer units per token;
+- capacity: 5,000,000 units;
+- refill: 1,000,000 units per second using Redis server time;
+- request cost: 1,000,000 units;
+- inactivity TTL: ten seconds, with verification that it cannot reset quota prematurely;
+- Lua result: integer 1 for admitted or 0 for rejected;
+- isolated synchronous wait bound: three seconds;
+- Redis errors propagate during tests, with no fallback;
+- no gateway wiring or Lua implementation outside the bounded SENT-011 operation.

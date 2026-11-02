@@ -1,6 +1,6 @@
 # Sentinel — Persistent Project Roadmap
 
-Last Updated: 2026-11-01
+Last Updated: 2026-11-02
 
 ## Objective and planning horizon
 
@@ -12,10 +12,10 @@ The DOCUMENTED, project-owner-approved plan targets 12 weeks at approximately 8�
 
 | Item | Current value | Evidence |
 | --- | --- | --- |
-| Current phase | Phase 3 — Distributed Rate Limiting: In Progress | DOCUMENTED: owner-authorized SENT-010; earlier unfinished tickets/phases are not implicitly closed |
-| Active ticket | SENT-010 — Redis Foundation and Shared-State Design | DOCUMENTED: explicit owner instruction, 2026-11-01 |
-| Ticket status | In Progress; foundation/design and verification complete; owner review and closure approval pending | VERIFIED: CURRENT_STATE.md section 29 |
-| Latest approved milestones | SENT-000.7, SENT-000.8, SENT-001, SENT-002, and SENT-005 through SENT-009 — Completed and approved | DOCUMENTED: owner closure approvals; SENT-009 verification is in CURRENT_STATE.md section 28 |
+| Current phase | Phase 3 — Distributed Rate Limiting: In Progress | DOCUMENTED: owner-authorized SENT-012; earlier unfinished tickets/phases are not implicitly closed |
+| Active ticket | SENT-012 — Nonblocking Redis Rate Limiting in Spring Cloud Gateway | DOCUMENTED: explicit owner instruction, 2026-11-02 |
+| Ticket status | In Progress; asynchronous design and Redis failure policy await approval before production cutover | DOCUMENTED: owner design gate; CURRENT_STATE.md section 31 |
+| Latest approved milestones | SENT-000.7, SENT-000.8, SENT-001, SENT-002, and SENT-005 through SENT-011 — Completed and approved | DOCUMENTED: owner closure approvals; SENT-011 evidence is in CURRENT_STATE.md section 30 |
 | Implementation | Existing gateway behavior preserved; standard-library regression harness added under gateway/tests/ | VERIFIED: one documented command builds with Java 21/Maven Wrapper, runs isolated HTTP scenarios with an owned backend, and cleans up test processes. No new dependencies or production changes. |
 | Foundation work | Context-management instructions, current-state documentation, and decision log exist and contain content | VERIFIED: inspected repository files |
 
@@ -113,7 +113,7 @@ Topics:
 
 Status: In Progress
 
-SENT-010 now has an inspected but unexecuted localhost-only Redis Compose definition, reactive Spring Redis configuration, verified native and Spring-client PONG responses, a passing Java 21 package and complete regression suite, and a proposed shared-state/Lua design. Redis is approved in principle by DEC-003, while the proposed key structure, expiration, exact atomic operation, and outage behavior remain open. The active local limiter and gateway behavior remain unchanged. Owner closure approval is pending. See CURRENT_STATE.md section 29.
+SENT-010 and SENT-011 are completed and approved. The project now has Redis connectivity plus an unannotated and unwired RedisRateLimiter with an atomic Lua token bucket using Redis server time and integer fractional credit. Isolated Redis behavior, shared concurrency, rejection accounting, TTL safety, Java 21 packaging, and the existing gateway regression pass. SENT-012 is at its design gate for a nonblocking Gateway cutover and explicit Redis failure policy; the active gateway still uses LocalRateLimiter. See CURRENT_STATE.md sections 29–31.
 
 Topics:
 
@@ -127,9 +127,9 @@ Topics:
 
 | Planned deliverable | Status | Completion evidence |
 | --- | --- | --- |
-| Redis-backed distributed rate limiter | Not Started | Not yet recorded |
+| Redis-backed distributed rate limiter | In Progress | Unwired RedisRateLimiter and atomic Lua operation pass isolated native-Redis checks; gateway cutover and owner approval are pending. |
 | Multiple gateway instances | Not Started | Not yet recorded |
-| Integration tests | Not Started | Not yet recorded |
+| Integration tests | In Progress | Native-Redis checks passed initial capacity, client independence, 5/95 shared concurrency, rejection accounting, and TTL safety; broader distributed gateway integration is not implemented. |
 
 ## Phase 4 — Reliability Engineering (Weeks 8–9)
 
@@ -226,4 +226,4 @@ Other DOCUMENTED stack choices in [CURRENT_STATE.md](CURRENT_STATE.md), includin
 
 ## Next micro-task
 
-SENT-010 is active with its planned foundation, verification, and proposed design complete. The next action is owner review, explanation of why client-side GET/SET is unsafe, and an explicit closure decision. The existing local limiter remains wired into the gateway. See CURRENT_STATE.md section 29.
+SENT-012 is active. The next action is owner approval or revision of the proposed reactive admission contract, explicit local/Redis configuration, timeout, and HTTP 503 fail-closed Redis error policy before production gateway behavior changes. The existing local limiter remains wired into the gateway.
